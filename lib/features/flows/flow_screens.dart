@@ -6,6 +6,7 @@ import '../../app/providers.dart';
 import '../../design_system/app_theme.dart';
 import '../../design_system/chat_quick_actions.dart';
 import '../../design_system/components.dart';
+import '../../design_system/swap_proposal_widget.dart';
 import '../../domain/models.dart';
 import '../home/home_screen.dart';
 
@@ -444,6 +445,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 itemCount: messages.length,
                 itemBuilder: (_, index) {
                   final message = messages[index];
+                  if (message.isProposal) {
+                    return SwapProposalCard(
+                      message: message,
+                      onAccept: () async {
+                        await ref
+                            .read(repositoryProvider)
+                            .updateProposalStatus(message.id, 'accepted');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('🎉 Swap Proposal Accepted! Session confirmed.')),
+                          );
+                        }
+                      },
+                      onDecline: () async {
+                        await ref
+                            .read(repositoryProvider)
+                            .updateProposalStatus(message.id, 'declined');
+                      },
+                    );
+                  }
+
                   return Align(
                     alignment: message.sentByMe
                         ? Alignment.centerRight
@@ -510,9 +532,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Padding(
               padding: const EdgeInsets.only(top: AppSpace.xs),
               child: ChatQuickActions(
-                onProposeMeeting: () => setState(
-                  () => input.text = 'Would this Saturday at 4 PM work for our swap?',
-                ),
+                onProposeMeeting: () {
+                  final profile = ref.read(repositoryProvider).profile(widget.profileId);
+                  SwapProposalSheet.show(
+                    context,
+                    profileName: profile.name,
+                    offeredSkills: profile.offers,
+                    wantedSkills: profile.wants,
+                    onSendProposal: ({
+                      required date,
+                      required location,
+                      required offeredSkill,
+                      required wantedSkill,
+                      required note,
+                    }) async {
+                      final body = note.isNotEmpty
+                          ? note
+                          : "Hey ${profile.name}! Proposing a swap session ($offeredSkill ↔ $wantedSkill) at $location.";
+                      await ref.read(repositoryProvider).sendMessage(
+                        profileId: widget.profileId,
+                        body: body,
+                        proposalDate: date,
+                        proposalLocation: location,
+                        offeredSkill: offeredSkill,
+                        wantedSkill: wantedSkill,
+                      );
+                    },
+                  );
+                },
                 onShareLocation: () => setState(
                   () => input.text = "Let's meet at Central Park entrance nearby!",
                 ),

@@ -82,6 +82,11 @@ class ChatMessage {
     required this.sentByMe,
     required this.timeLabel,
     required this.isPendingSync,
+    this.proposalDate,
+    this.proposalLocation,
+    this.proposalStatus,
+    this.offeredSkill,
+    this.wantedSkill,
   });
 
   final String id;
@@ -91,14 +96,31 @@ class ChatMessage {
   final String timeLabel;
   final bool isPendingSync;
 
-  ChatMessage copyWith({bool? isPendingSync}) => ChatMessage(
-    id: id,
-    profileId: profileId,
-    body: body,
-    sentByMe: sentByMe,
-    timeLabel: timeLabel,
-    isPendingSync: isPendingSync ?? this.isPendingSync,
-  );
+  final DateTime? proposalDate;
+  final String? proposalLocation;
+  final String? proposalStatus; // 'pending', 'accepted', 'declined'
+  final String? offeredSkill;
+  final String? wantedSkill;
+
+  bool get isProposal => proposalLocation != null;
+
+  ChatMessage copyWith({
+    bool? isPendingSync,
+    String? proposalStatus,
+  }) =>
+      ChatMessage(
+        id: id,
+        profileId: profileId,
+        body: body,
+        sentByMe: sentByMe,
+        timeLabel: timeLabel,
+        isPendingSync: isPendingSync ?? this.isPendingSync,
+        proposalDate: proposalDate,
+        proposalLocation: proposalLocation,
+        proposalStatus: proposalStatus ?? this.proposalStatus,
+        offeredSkill: offeredSkill,
+        wantedSkill: wantedSkill,
+      );
 }
 
 class PendingOperation {

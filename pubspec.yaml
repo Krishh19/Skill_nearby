@@ -42,6 +42,7 @@ dependencies:
   path_provider: ^2.1.5
   sqlite3_flutter_libs: ^0.5.39
   supabase_flutter: ^2.9.0
+  purchases_flutter: ^8.6.0
 
 dev_dependencies:
   flutter_test:

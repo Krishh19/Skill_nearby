@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/revenue_cat_service.dart';
 import '../domain/models.dart';
 import 'app_theme.dart';
 
@@ -235,7 +237,7 @@ class FriendlyEmptyState extends StatelessWidget {
   );
 }
 
-class SkillNearbyPlusPaywallSheet extends StatelessWidget {
+class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
   const SkillNearbyPlusPaywallSheet({super.key});
 
   static void show(BuildContext context) {
@@ -251,7 +253,7 @@ class SkillNearbyPlusPaywallSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.all(AppSpace.lg),
       decoration: const BoxDecoration(
@@ -330,11 +332,20 @@ class SkillNearbyPlusPaywallSheet extends StatelessWidget {
           const SizedBox(height: AppSpace.md),
           AppButton(
             label: 'Start 7-Day Free Trial',
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('🎉 SkillNearby Plus Trial Activated!')),
-              );
+            onPressed: () async {
+              final success = await ref.read(revenueCatServiceProvider).purchaseTestPlus();
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? '🎉 SkillNearby Plus Activated! 20 km search radius unlocked.'
+                          : 'SkillNearby Plus activation pending.',
+                    ),
+                  ),
+                );
+              }
             },
           ),
           const SizedBox(height: AppSpace.xs),

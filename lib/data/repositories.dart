@@ -127,6 +127,10 @@ class SkillRepository {
   Future<void> sendMessage({
     required String profileId,
     required String body,
+    DateTime? proposalDate,
+    String? proposalLocation,
+    String? offeredSkill,
+    String? wantedSkill,
   }) async {
     final message = ChatMessage(
       id: 'message-${DateTime.now().microsecondsSinceEpoch}',
@@ -135,6 +139,11 @@ class SkillRepository {
       sentByMe: true,
       timeLabel: 'Now',
       isPendingSync: true,
+      proposalDate: proposalDate,
+      proposalLocation: proposalLocation,
+      proposalStatus: proposalLocation != null ? 'pending' : null,
+      offeredSkill: offeredSkill,
+      wantedSkill: wantedSkill,
     );
     _messages.add([..._messages.value, message]);
     await _localStore.cacheMessage(
@@ -146,6 +155,16 @@ class SkillRepository {
       OperationKind.sendMessage,
       message.id,
       payload: {'profile_id': profileId, 'body': body},
+    );
+  }
+
+  Future<void> updateProposalStatus(String messageId, String status) async {
+    _messages.add(
+      _messages.value
+          .map(
+            (msg) => msg.id == messageId ? msg.copyWith(proposalStatus: status) : msg,
+          )
+          .toList(),
     );
   }
 
