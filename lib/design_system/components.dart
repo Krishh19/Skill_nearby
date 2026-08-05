@@ -65,9 +65,10 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: padding,
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       color: AppColors.surface,
       borderRadius: AppRadii.card,
+      border: Border.all(color: AppColors.border.withValues(alpha: 0.6), width: 1),
       boxShadow: AppShadows.card,
     ),
     child: child,

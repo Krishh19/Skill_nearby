@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -205,12 +206,20 @@ class _RequestSwapScreenState extends State<RequestSwapScreen> {
   );
 }
 
-class RequestReviewScreen extends ConsumerWidget {
+class RequestReviewScreen extends ConsumerStatefulWidget {
   const RequestReviewScreen({required this.profileId, super.key});
   final String profileId;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.read(repositoryProvider).profile(profileId);
+  ConsumerState<RequestReviewScreen> createState() => _RequestReviewScreenState();
+}
+
+class _RequestReviewScreenState extends ConsumerState<RequestReviewScreen> {
+  bool _agreedToTerms = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = ref.read(repositoryProvider).profile(widget.profileId);
     return DetailScaffold(
       title: 'Looks good!',
       child: Column(
@@ -249,26 +258,56 @@ class RequestReviewScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpace.sm),
-          Row(
-            children: [
-              const Icon(Icons.check_box, color: AppColors.primary),
-              const SizedBox(width: AppSpace.xs),
-              Expanded(
-                child: Text(
-                  'I agree to the community guidelines',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+          InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() => _agreedToTerms = !_agreedToTerms);
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: _agreedToTerms,
+                    activeColor: AppColors.primary,
+                    onChanged: (val) {
+                      HapticFeedback.lightImpact();
+                      setState(() => _agreedToTerms = val ?? false);
+                    },
+                  ),
+                  const SizedBox(width: AppSpace.xs),
+                  Expanded(
+                    child: Text(
+                      'I agree to the community guidelines',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: _agreedToTerms ? AppColors.textPrimary : AppColors.textSecondary,
+                        fontWeight: _agreedToTerms ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           const SizedBox(height: AppSpace.lg),
           AppButton(
             label: 'Send request',
             onPressed: () async {
+              if (!_agreedToTerms) {
+                HapticFeedback.heavyImpact();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('⚠️ Please agree to the community guidelines before sending.'),
+                    backgroundColor: AppColors.accent,
+                  ),
+                );
+                return;
+              }
               await ref
                   .read(repositoryProvider)
                   .createSwapRequest(
-                    profileId: profileId,
+                    profileId: widget.profileId,
                     wantedSkill: 'Guitar Lessons',
                     offeredSkill: 'Graphic Design',
                     message: 'I’d love to learn guitar from you.',
@@ -860,15 +899,19 @@ class DetailScaffold extends StatelessWidget {
   final String title;
   final Widget child;
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title), backgroundColor: AppColors.background),
-    body: SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpace.lg),
-        child: child,
-      ),
-    ),
-  );
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: Scaffold(
+          appBar: AppBar(title: Text(title), backgroundColor: AppColors.background),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpace.lg),
+              child: child,
+            ),
+          ),
+        ),
+      );
 }
 
 class _Section extends StatelessWidget {

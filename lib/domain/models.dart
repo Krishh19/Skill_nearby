@@ -3,7 +3,7 @@
 
 enum RequestStatus { pending, accepted, completed, declined }
 
-enum OperationKind { requestSwap, sendMessage, completeSwap, submitRating }
+enum OperationKind { requestSwap, sendMessage, completeSwap, submitRating, updateProfile }
 
 enum OperationState { pending, syncing, failed }
 
@@ -22,6 +22,7 @@ class SkillProfile {
     required this.bio,
     this.isVerified = false,
     this.hasVideo = false,
+    this.avatarUrl,
   });
 
   final String id;
@@ -35,6 +36,35 @@ class SkillProfile {
   final String bio;
   final bool isVerified;
   final bool hasVideo;
+  final String? avatarUrl;
+
+  SkillProfile copyWith({
+    String? name,
+    String? initials,
+    double? distanceKm,
+    double? rating,
+    int? responseRate,
+    List<String>? offers,
+    List<String>? wants,
+    String? bio,
+    bool? isVerified,
+    bool? hasVideo,
+    String? avatarUrl,
+  }) =>
+      SkillProfile(
+        id: id,
+        name: name ?? this.name,
+        initials: initials ?? this.initials,
+        distanceKm: distanceKm ?? this.distanceKm,
+        rating: rating ?? this.rating,
+        responseRate: responseRate ?? this.responseRate,
+        offers: offers ?? this.offers,
+        wants: wants ?? this.wants,
+        bio: bio ?? this.bio,
+        isVerified: isVerified ?? this.isVerified,
+        hasVideo: hasVideo ?? this.hasVideo,
+        avatarUrl: avatarUrl ?? this.avatarUrl,
+      );
 }
 
 class SwapRequest {

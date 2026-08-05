@@ -33,7 +33,12 @@ abstract final class AppRadii {
 
 abstract final class AppShadows {
   static const card = [
-    BoxShadow(color: Color(0x120F766E), blurRadius: 18, offset: Offset(0, 6)),
+    BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 4), spreadRadius: 0),
+    BoxShadow(color: Color(0x080F766E), blurRadius: 20, offset: Offset(0, 8), spreadRadius: -2),
+  ];
+  static const elevated = [
+    BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, 6), spreadRadius: 0),
+    BoxShadow(color: Color(0x100F766E), blurRadius: 28, offset: Offset(0, 12), spreadRadius: -2),
   ];
 }
 

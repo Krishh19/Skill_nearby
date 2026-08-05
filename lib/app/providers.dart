@@ -24,3 +24,6 @@ final connectionProvider = StreamProvider<AppConnectionState>(
 final preferencesProvider = StreamProvider<AppPreferences>(
   (ref) => ref.watch(repositoryProvider).watchPreferences(),
 );
+final myProfileProvider = StreamProvider<SkillProfile>(
+  (ref) => ref.watch(repositoryProvider).watchMyProfile(),
+);

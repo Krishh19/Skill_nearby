@@ -43,6 +43,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.39
   supabase_flutter: ^2.9.0
   purchases_flutter: ^8.6.0
+  flutter_local_notifications: ^18.0.1
+  google_fonts: ^8.2.1
 
 dev_dependencies:
   flutter_test:

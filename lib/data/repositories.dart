@@ -54,7 +54,24 @@ class SkillRepository {
     _preferencesStore.read(),
   );
 
+  final _myProfile = _StreamValue<SkillProfile>(
+    const SkillProfile(
+      id: 'me',
+      name: 'Aanya Sharma',
+      initials: 'AS',
+      distanceKm: 0.0,
+      rating: 4.9,
+      responseRate: 93,
+      offers: ['Graphic Design', 'Branding', 'Canva'],
+      wants: ['Guitar', 'Gardening'],
+      bio: 'Passionate graphic designer and branding strategist.',
+      isVerified: true,
+    ),
+  );
+
   Stream<List<SkillProfile>> watchProfiles() => _profiles.stream;
+  Stream<SkillProfile> watchMyProfile() => _myProfile.stream;
+  SkillProfile get myProfile => _myProfile.value;
   Stream<List<SwapRequest>> watchRequests() => _requests.stream;
   Stream<List<ChatMessage>> watchMessages() => _messages.stream;
   Stream<List<PendingOperation>> watchOutbox() => _outbox.stream;
@@ -182,6 +199,60 @@ class SkillRepository {
           .toList(),
     );
     await _enqueue(OperationKind.completeSwap, requestId);
+  }
+
+  Future<void> submitSwapRating({
+    required String requestId,
+    required double rating,
+    required String comment,
+    required List<String> tags,
+  }) async {
+    await completeSwap(requestId);
+    await _enqueue(
+      OperationKind.submitRating,
+      requestId,
+      payload: {
+        'rating': rating,
+        'comment': comment,
+        'tags': tags,
+      },
+    );
+  }
+
+  Future<void> updateUserProfile({
+    required String name,
+    required String bio,
+    required List<String> offers,
+    required List<String> wants,
+    double? lat,
+    double? lng,
+    String? avatarUrl,
+  }) async {
+    final nameParts = name.trim().split(' ');
+    final initials = nameParts.map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+    final updated = _myProfile.value.copyWith(
+      name: name.trim().isNotEmpty ? name.trim() : _myProfile.value.name,
+      initials: initials.isNotEmpty ? initials : _myProfile.value.initials,
+      bio: bio.trim(),
+      offers: offers,
+      wants: wants,
+      avatarUrl: avatarUrl ?? _myProfile.value.avatarUrl,
+    );
+    _myProfile.add(updated);
+
+    await _enqueue(
+      OperationKind.updateProfile,
+      _myProfile.value.id,
+      payload: {
+        'name': updated.name,
+        'bio': updated.bio,
+        'offers': updated.offers,
+        'wants': updated.wants,
+        if (lat != null && lng != null) 'latitude': lat,
+        if (lat != null && lng != null) 'longitude': lng,
+        if (avatarUrl != null) 'avatar_url': avatarUrl,
+      },
+    );
   }
 
   Future<void> submitRating(String requestId) =>

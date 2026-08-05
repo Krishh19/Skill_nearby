@@ -292,53 +292,138 @@ class _NearbyMapCanvas extends StatefulWidget {
 
 class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
   SkillProfile? selectedProfile;
+  double zoomScale = 1.0;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
       padding: EdgeInsets.zero,
       child: Container(
-        height: 320,
+        height: 340,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: AppColors.softTeal.withOpacity(0.35),
+          color: const Color(0xFFEFF7F5),
           borderRadius: AppRadii.card,
         ),
         child: Stack(
           children: [
-            CustomPaint(
-              size: const Size(double.infinity, 320),
-              painter: _MapGridPainter(),
+            // Rich Vector Map Painter
+            Transform.scale(
+              scale: zoomScale,
+              child: CustomPaint(
+                size: const Size(double.infinity, 340),
+                painter: _MapVectorPainter(),
+              ),
             ),
+
+            // Top-Left Status Badge
             Positioned(
               top: 12,
               left: 12,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: const BoxDecoration(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: AppRadii.pill,
+                  boxShadow: AppShadows.card,
                 ),
                 child: Row(
                   children: const [
-                    Icon(Icons.wifi_off, size: 14, color: AppColors.primary),
+                    Icon(Icons.location_on, size: 14, color: AppColors.primary),
                     SizedBox(width: 4),
                     Text(
-                      'Offline Map Pack Active',
+                      '📍 Indiranagar Neighbourhood Map',
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
                     ),
                   ],
                 ),
               ),
             ),
+
+            // Top-Right Zoom & Control Buttons
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Column(
+                children: [
+                  _MapControlButton(
+                    icon: Icons.add,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      setState(() => zoomScale = (zoomScale + 0.15).clamp(0.8, 1.6));
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _MapControlButton(
+                    icon: Icons.remove,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      setState(() => zoomScale = (zoomScale - 0.15).clamp(0.8, 1.6));
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _MapControlButton(
+                    icon: Icons.my_location,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      setState(() {
+                        zoomScale = 1.0;
+                        selectedProfile = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // User Location Marker (Center Pulsing Dot)
+            Positioned(
+              left: 170,
+              top: 150,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.fromBorderSide(BorderSide(color: Colors.white, width: 2.5)),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'You',
+                      style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Interactive Neighbour Profile Map Pins
             ...widget.profiles.asMap().entries.map((entry) {
               final idx = entry.key;
               final profile = entry.value;
               final positions = const [
-                Offset(80, 70),
-                Offset(240, 110),
-                Offset(140, 190),
-                Offset(280, 220),
-                Offset(60, 230),
+                Offset(55, 75),
+                Offset(220, 70),
+                Offset(110, 195),
+                Offset(245, 205),
+                Offset(60, 245),
               ];
               final pos = positions[idx % positions.length];
               final isSelected = selectedProfile?.id == profile.id;
@@ -359,18 +444,33 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                         decoration: BoxDecoration(
                           color: isSelected ? AppColors.accent : AppColors.primary,
                           borderRadius: AppRadii.pill,
+                          border: Border.all(color: Colors.white, width: 1.5),
                           boxShadow: AppShadows.card,
                         ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              profile.initials,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                            CircleAvatar(
+                              radius: 9,
+                              backgroundColor: AppColors.softGold,
+                              child: Text(
+                                profile.initials,
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 8,
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '★ ${profile.rating}',
-                              style: const TextStyle(color: Colors.white, fontSize: 10),
+                              profile.offers.isNotEmpty ? profile.offers.first : profile.name,
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              '★${profile.rating}',
+                              style: const TextStyle(color: Colors.white70, fontSize: 9),
                             ),
                           ],
                         ),
@@ -385,6 +485,8 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                 ),
               );
             }),
+
+            // Selected Profile Floating Preview Card
             if (selectedProfile != null)
               Positioned(
                 bottom: 12,
@@ -392,17 +494,21 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                 right: 12,
                 child: Container(
                   padding: const EdgeInsets.all(AppSpace.sm),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: AppRadii.input,
+                    borderRadius: AppRadii.card,
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                     boxShadow: AppShadows.card,
                   ),
                   child: Row(
                     children: [
                       CircleAvatar(
-                        radius: 18,
+                        radius: 20,
                         backgroundColor: AppColors.softGold,
-                        child: Text(selectedProfile!.initials, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                        child: Text(
+                          selectedProfile!.initials,
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                        ),
                       ),
                       const SizedBox(width: AppSpace.sm),
                       Expanded(
@@ -411,7 +517,10 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(selectedProfile!.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            Text('${selectedProfile!.distanceKm} km away • Offers ${selectedProfile!.offers.first}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                            Text(
+                              '${selectedProfile!.distanceKm} km away • Teaches ${selectedProfile!.offers.first}',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            ),
                           ],
                         ),
                       ),
@@ -420,7 +529,8 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          shape: const RoundedRectangleBorder(borderRadius: AppRadii.pill),
                           textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                         child: const Text('Swap'),
@@ -436,19 +546,130 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
   }
 }
 
-class _MapGridPainter extends CustomPainter {
+class _MapControlButton extends StatelessWidget {
+  const _MapControlButton({required this.icon, required this.onTap});
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+          boxShadow: AppShadows.card,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Icon(icon, size: 16, color: AppColors.primary),
+      ),
+    );
+  }
+}
+
+class _MapVectorPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.primary.withOpacity(0.08)
-      ..strokeWidth = 1;
+    // 1. Water River Body Stream Path
+    final riverPaint = Paint()
+      ..color = const Color(0xFFC4E8E1)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 24
+      ..strokeCap = StrokeCap.round;
 
-    for (var i = 0.0; i < size.width; i += 40) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    final riverPath = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..cubicTo(
+        size.width * 0.35, size.height * 0.15,
+        size.width * 0.55, size.height * 0.45,
+        size.width, size.height * 0.35,
+      );
+    canvas.drawPath(riverPath, riverPaint);
+
+    // 2. Green Neighbourhood Parks
+    final parkPaint = Paint()
+      ..color = const Color(0xFFE2F3E7)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(size.width * 0.55, size.height * 0.55, 110, 80),
+        const Radius.circular(16),
+      ),
+      parkPaint,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(size.width * 0.08, size.height * 0.65, 80, 60),
+        const Radius.circular(12),
+      ),
+      parkPaint,
+    );
+
+    // 3. Secondary Streets
+    final secondaryRoadPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
+
+    for (var y = 40.0; y < size.height; y += 60) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), secondaryRoadPaint);
     }
-    for (var i = 0.0; i < size.height; i += 40) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    for (var x = 50.0; x < size.width; x += 70) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), secondaryRoadPaint);
     }
+
+    // 4. Main Avenues
+    final mainRoadPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..strokeCap = StrokeCap.round;
+
+    final mainRoadBorderPaint = Paint()
+      ..color = const Color(0xFFD4E5E1)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 12
+      ..strokeCap = StrokeCap.round;
+
+    // Diagonal Main Boulevard
+    final boulevard = Path()
+      ..moveTo(0, size.height * 0.8)
+      ..lineTo(size.width, size.height * 0.1);
+
+    canvas.drawPath(boulevard, mainRoadBorderPaint);
+    canvas.drawPath(boulevard, mainRoadPaint);
+
+    // Vertical Central Parkway
+    canvas.drawLine(
+      Offset(size.width * 0.48, 0),
+      Offset(size.width * 0.48, size.height),
+      mainRoadBorderPaint,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.48, 0),
+      Offset(size.width * 0.48, size.height),
+      mainRoadPaint,
+    );
+
+    // 5. Landmark Text Labels
+    const textStyle = TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF5A7B75));
+    
+    _drawText(canvas, '🏞️ Central Park', Offset(size.width * 0.58, size.height * 0.62), textStyle);
+    _drawText(canvas, '🚇 Metro Station', Offset(size.width * 0.12, size.height * 0.12), textStyle);
+    _drawText(canvas, '📚 Community Library', Offset(size.width * 0.52, size.height * 0.35), textStyle);
+  }
+
+  void _drawText(Canvas canvas, String text, Offset position, TextStyle style) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, position);
   }
 
   @override
@@ -794,143 +1015,185 @@ class MyProfileScreen extends ConsumerWidget {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(AppSpace.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.stars, color: AppColors.primary, size: 26),
-                const SizedBox(width: AppSpace.sm),
-                Text(
-                  'Skill Credits Activity',
-                  style: Theme.of(context).textTheme.titleLarge,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpace.lg,
+            AppSpace.lg,
+            AppSpace.lg,
+            AppSpace.lg + MediaQuery.of(context).padding.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: AppSpace.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpace.xs),
-            const Text('Earned by teaching, spent by learning from neighbours:'),
-            const SizedBox(height: AppSpace.md),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(backgroundColor: AppColors.softTeal, child: Icon(Icons.arrow_upward, color: AppColors.success)),
-              title: Text('Taught Graphic Design (+3 credits)'),
-              subtitle: Text('Swap with Rohan • Yesterday'),
-            ),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(backgroundColor: AppColors.softTeal, child: Icon(Icons.arrow_upward, color: AppColors.success)),
-              title: Text('Taught Branding Basics (+2 credits)'),
-              subtitle: Text('Swap with Neha • 3 days ago'),
-            ),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(backgroundColor: AppColors.softCoral, child: Icon(Icons.arrow_downward, color: AppColors.accent)),
-              title: Text('Learned Sourdough Baking (-2 credits)'),
-              subtitle: Text('Swap with Maya • 1 week ago'),
-            ),
-            const SizedBox(height: AppSpace.md),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-                child: const Text('Close'),
               ),
-            ),
-          ],
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: AppColors.softGold,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.stars_rounded, color: AppColors.primary, size: 26),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  Text(
+                    'Skill Credits Activity',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpace.xs),
+              const Text('Earned by teaching, spent by learning from neighbours:'),
+              const SizedBox(height: AppSpace.md),
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(backgroundColor: AppColors.softTeal, child: Icon(Icons.arrow_upward, color: AppColors.success)),
+                title: Text('Taught Graphic Design (+3 credits)'),
+                subtitle: Text('Swap with Rohan • Yesterday'),
+              ),
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(backgroundColor: AppColors.softTeal, child: Icon(Icons.arrow_upward, color: AppColors.success)),
+                title: Text('Taught Branding Basics (+2 credits)'),
+                subtitle: Text('Swap with Neha • 3 days ago'),
+              ),
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(backgroundColor: AppColors.softCoral, child: Icon(Icons.arrow_downward, color: AppColors.accent)),
+                title: Text('Learned Sourdough Baking (-2 credits)'),
+                subtitle: Text('Swap with Maya • 1 week ago'),
+              ),
+              const SizedBox(height: AppSpace.md),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(48),
+                    shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+                  ),
+                  child: const Text('Close'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => PageFrame(
-    title: 'Aanya Sharma',
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppCard(
-          child: Row(
-            children: [
-              const CircleAvatar(
-                radius: 30,
-                backgroundColor: AppColors.softGold,
-                child: Text(
-                  'AS',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myProfileAsync = ref.watch(myProfileProvider);
+    final profile = myProfileAsync.value ?? ref.read(repositoryProvider).myProfile;
+
+    return PageFrame(
+      title: profile.name,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppCard(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: AppColors.softGold,
+                  child: Text(
+                    profile.initials,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: AppSpace.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Aanya Sharma',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const Text('4.9 ★  •  Response rate 93%'),
-                    const SizedBox(height: AppSpace.xs),
-                    const Text('12 swaps completed'),
-                  ],
+                const SizedBox(width: AppSpace.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.name,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      Text('${profile.rating.toStringAsFixed(1)} ★  •  Response rate ${profile.responseRate}%'),
+                      const SizedBox(height: AppSpace.xs),
+                      const Text('12 swaps completed'),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        const _ProfileSnapshot(),
-        const SizedBox(height: AppSpace.sm),
-        SkillCreditsBalance(
-          credits: 8,
-          earnedThisMonth: 5,
-          spentThisMonth: 2,
-          onHistoryTap: () => _showCreditsHistory(context),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        const _NeighbourhoodBadges(),
-        const SizedBox(height: AppSpace.sm),
-        const _ProfileSkills(),
-        const SizedBox(height: AppSpace.sm),
-        const _RecentKindWordsCarousel(),
-        const SizedBox(height: AppSpace.sm),
-        _SettingsTile(
-          icon: Icons.campaign_outlined,
-          title: 'Standing offers',
-          onTap: () => context.push('/standing-offers'),
-        ),
-        _SettingsTile(
-          icon: Icons.shield_outlined,
-          title: 'Safety & verification',
-          onTap: () => context.push('/safety'),
-        ),
-        _SettingsTile(
-          icon: Icons.cloud_outlined,
-          title: 'Offline data',
-          onTap: () => context.push('/offline-data'),
-        ),
-        _SettingsTile(
-          icon: Icons.tune_outlined,
-          title: 'Availability',
-          subtitle:
-              ref.watch(preferencesProvider).value?.isAvailableEvenings == true
-              ? 'Evenings'
-              : 'Flexible',
-          onTap: () {},
-        ),
-      ],
-    ),
-  );
+          const SizedBox(height: AppSpace.sm),
+          const _ProfileSnapshot(),
+          const SizedBox(height: AppSpace.sm),
+          SkillCreditsBalance(
+            credits: 8,
+            earnedThisMonth: 5,
+            spentThisMonth: 2,
+            onHistoryTap: () => _showCreditsHistory(context),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          const _NeighbourhoodBadges(),
+          const SizedBox(height: AppSpace.sm),
+          const _ProfileSkills(),
+          const SizedBox(height: AppSpace.sm),
+          const _RecentKindWordsCarousel(),
+          const SizedBox(height: AppSpace.sm),
+          _SettingsTile(
+            icon: Icons.person_outline,
+            title: 'Edit profile & skills',
+            subtitle: 'Bio, offered skills & GPS location',
+            onTap: () => context.push('/edit-profile'),
+          ),
+          _SettingsTile(
+            icon: Icons.campaign_outlined,
+            title: 'Standing offers',
+            onTap: () => context.push('/standing-offers'),
+          ),
+          _SettingsTile(
+            icon: Icons.shield_outlined,
+            title: 'Safety & verification',
+            onTap: () => context.push('/safety'),
+          ),
+          _SettingsTile(
+            icon: Icons.cloud_outlined,
+            title: 'Offline data',
+            onTap: () => context.push('/offline-data'),
+          ),
+          _SettingsTile(
+            icon: Icons.tune_outlined,
+            title: 'Availability',
+            subtitle:
+                ref.watch(preferencesProvider).value?.isAvailableEvenings == true
+                ? 'Evenings'
+                : 'Flexible',
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _NeighbourhoodBadges extends StatelessWidget {
@@ -1000,11 +1263,14 @@ class PageFrame extends ConsumerWidget {
     final connection =
         ref.watch(connectionProvider).value ?? AppConnectionState.online;
     final pending = ref.watch(outboxProvider).value?.length ?? 0;
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             OfflineBanner(connection: connection, pendingCount: pending),
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -1039,8 +1305,9 @@ class PageFrame extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class ProfileAvatar extends StatelessWidget {

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/repositories.dart';
+import '../features/flows/edit_profile_screen.dart';
 import '../features/flows/flow_screens.dart';
+import '../features/flows/rating_review_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/onboarding/onboarding_screens.dart';
 
@@ -101,7 +103,11 @@ GoRouter createRouter(SkillRepository repository) => GoRouter(
     GoRoute(
       path: '/rating/:id',
       builder: (_, state) =>
-          RatingScreen(requestId: state.pathParameters['id']!),
+          RatingReviewScreen(requestId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/edit-profile',
+      builder: (_, __) => const EditProfileScreen(),
     ),
     GoRoute(
       path: '/standing-offers',
