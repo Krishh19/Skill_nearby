@@ -120,14 +120,57 @@ class RequestSwapScreen extends StatefulWidget {
 class _RequestSwapScreenState extends State<RequestSwapScreen> {
   String wanted = 'Guitar Lessons';
   String offered = 'Graphic Design';
+  String preferredTime = 'Weekday evenings';
   final message = TextEditingController(
     text:
         'Hi! I’d love to learn guitar from you. I can help you with graphic design in return.',
   );
+
   @override
   void dispose() {
     message.dispose();
     super.dispose();
+  }
+
+  void _selectPreferredTime(BuildContext context) {
+    HapticFeedback.lightImpact();
+    final times = [
+      'Weekday evenings',
+      'Weekend mornings',
+      'Weekend afternoons',
+      'Flexible / Any time',
+    ];
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpace.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Select preferred time', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: AppSpace.sm),
+              ...times.map((t) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      preferredTime == t ? Icons.radio_button_checked : Icons.radio_button_off,
+                      color: AppColors.primary,
+                    ),
+                    title: Text(t, style: const TextStyle(fontWeight: FontWeight.w500)),
+                    onTap: () {
+                      setState(() => preferredTime = t);
+                      Navigator.pop(ctx);
+                    },
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -176,21 +219,47 @@ class _RequestSwapScreenState extends State<RequestSwapScreen> {
             const SizedBox(height: AppSpace.lg),
             TextField(
               controller: message,
-              minLines: 4,
-              maxLines: 5,
+              minLines: 3,
+              maxLines: 4,
               decoration: const InputDecoration(
                 labelText: 'Message (optional)',
                 alignLabelWithHint: true,
               ),
             ),
             const SizedBox(height: AppSpace.md),
-            const AppCard(
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.schedule, color: AppColors.primary),
-                title: Text('Preferred time'),
-                subtitle: Text('Weekday evenings'),
-                trailing: Icon(Icons.chevron_right),
+            InkWell(
+              onTap: () => _selectPreferredTime(context),
+              borderRadius: AppRadii.input,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppRadii.input,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.schedule, color: AppColors.primary, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Preferred time',
+                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            preferredTime,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: AppSpace.lg),
@@ -517,7 +586,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         color: message.sentByMe
                             ? AppColors.primary
                             : AppColors.surface,
-                        borderRadius: AppRadii.input,
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(16),
+                          topRight: const Radius.circular(16),
+                          bottomLeft: message.sentByMe ? const Radius.circular(16) : const Radius.circular(4),
+                          bottomRight: message.sentByMe ? const Radius.circular(4) : const Radius.circular(16),
+                        ),
                         boxShadow: message.sentByMe ? null : AppShadows.card,
                       ),
                       child: Column(

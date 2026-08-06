@@ -6,10 +6,10 @@ import 'app_theme.dart';
 /// Redesigned request card widget.
 ///
 /// Features:
-/// - Single-line status pill and action labels ("Complete" with checkmark icon)
-/// - Relative timestamp ("2h ago")
-/// - Initial avatar rendering matching theme
-/// - Equal-width icon-labelled action buttons
+/// - Direction-aware status actions (Pending Incoming -> Accept / Decline)
+/// - Flexible skill exchange box wrapping without ugly text truncation
+/// - Responsive equal-flex action buttons eliminating overflow
+/// - Clear activity timeline indicator
 class RequestCardWidget extends StatelessWidget {
   const RequestCardWidget({
     super.key,
@@ -20,7 +20,12 @@ class RequestCardWidget extends StatelessWidget {
     required this.status,
     required this.isPendingSync,
     required this.requestedAt,
+    this.isIncoming = true,
     this.onMessage,
+    this.onAccept,
+    this.onDecline,
+    this.onComplete,
+    this.onRate,
     this.onPrimaryAction,
   });
 
@@ -31,7 +36,12 @@ class RequestCardWidget extends StatelessWidget {
   final RequestStatus status;
   final bool isPendingSync;
   final DateTime requestedAt;
+  final bool isIncoming;
   final VoidCallback? onMessage;
+  final VoidCallback? onAccept;
+  final VoidCallback? onDecline;
+  final VoidCallback? onComplete;
+  final VoidCallback? onRate;
   final VoidCallback? onPrimaryAction;
 
   String _timeAgo(DateTime dt) {
@@ -42,10 +52,20 @@ class RequestCardWidget extends StatelessWidget {
     return '${diff.inDays}d ago';
   }
 
+  String get _timelineText {
+    final ago = _timeAgo(requestedAt);
+    return switch (status) {
+      RequestStatus.pending => isIncoming
+          ? '$ago · Needs your response'
+          : '$ago · Awaiting neighbour response',
+      RequestStatus.accepted => '$ago · Swap in progress',
+      RequestStatus.completed => '$ago · Completed',
+      RequestStatus.declined => '$ago · Declined',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isCompleted = status == RequestStatus.completed;
-
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpace.sm),
       padding: const EdgeInsets.all(AppSpace.md),
@@ -53,22 +73,23 @@ class RequestCardWidget extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: AppRadii.card,
         boxShadow: AppShadows.card,
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row: avatar, name, timestamp, status pill
+          // Header row: avatar, name, timeline, status pill
           Row(
             children: [
               CircleAvatar(
-                radius: 22,
+                radius: 20,
                 backgroundColor: AppColors.softGold,
                 child: Text(
                   initials,
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                 ),
               ),
@@ -80,18 +101,24 @@ class RequestCardWidget extends StatelessWidget {
                     Text(
                       name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 16,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _timeAgo(requestedAt),
-                      style: Theme.of(context).textTheme.labelSmall,
+                      _timelineText,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 6),
               _StatusPill(
                 status: status,
                 pending: isPendingSync,
@@ -100,42 +127,49 @@ class RequestCardWidget extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.sm),
 
-          // Skill exchange row
+          // Skill exchange container with proper wrapping
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.sm, vertical: 10),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.background,
               borderRadius: AppRadii.input,
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Text(
-                    skillOffered,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                const Icon(
+                  Icons.swap_horiz_rounded,
+                  size: 20,
+                  color: AppColors.primary,
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: Icon(
-                    Icons.swap_horiz,
-                    size: 20,
-                    color: AppColors.primary,
-                  ),
-                ),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    skillWanted,
-                    textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
+                  child: Text.rich(
+                    TextSpan(
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                        height: 1.35,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: skillOffered,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const TextSpan(
+                          text: '  for  ',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        TextSpan(
+                          text: skillWanted,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ],
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -143,48 +177,162 @@ class RequestCardWidget extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.sm),
 
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onMessage,
-                  icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                  label: const Text('Message'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.pill,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpace.xs),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: onPrimaryAction,
-                  icon: Icon(
-                    isCompleted ? Icons.star_border : Icons.check_circle_outline,
-                    size: 18,
-                  ),
-                  label: Text(isCompleted ? 'Rate' : 'Complete'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isCompleted ? AppColors.primary : AppColors.accent,
-                    foregroundColor: AppColors.surface,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.pill,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          // Action Buttons according to status and direction
+          _buildActionRow(),
         ],
       ),
+    );
+  }
+
+  Widget _buildActionRow() {
+    // 1. Incoming Pending: Decline + Accept
+    if (status == RequestStatus.pending && isIncoming) {
+      return Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: onDecline,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.accent,
+                side: const BorderSide(color: AppColors.accent),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
+              ),
+              child: const Text('Decline', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            ),
+          ),
+          const SizedBox(width: AppSpace.xs),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: onAccept ?? onPrimaryAction,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.surface,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
+              ),
+              child: const Text('Accept', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // 2. Outgoing Pending: Message
+    if (status == RequestStatus.pending && !isIncoming) {
+      return SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: onMessage,
+          icon: const Icon(Icons.chat_bubble_outline, size: 16),
+          label: const Text('Message', style: TextStyle(fontSize: 13)),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: AppColors.primary),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppRadii.input,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 3. Accepted / Active: Message + Complete
+    if (status == RequestStatus.accepted) {
+      return Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: onMessage,
+              icon: const Icon(Icons.chat_bubble_outline, size: 16),
+              label: const Text('Message', style: TextStyle(fontSize: 13)),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpace.xs),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: onComplete ?? onPrimaryAction,
+              icon: const Icon(Icons.check_circle_outline, size: 16),
+              label: const Text('Complete', style: TextStyle(fontSize: 13)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.surface,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // 4. Completed: Message + Rate
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: onMessage,
+            icon: const Icon(Icons.chat_bubble_outline, size: 16),
+            label: const Text('Message', style: TextStyle(fontSize: 13)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: const RoundedRectangleBorder(
+                borderRadius: AppRadii.input,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpace.xs),
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: onRate ?? onPrimaryAction,
+            icon: const Icon(Icons.star_outline, size: 16),
+            label: const Text('Rate Swap', style: TextStyle(fontSize: 13)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.warning,
+              foregroundColor: AppColors.textPrimary,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: const RoundedRectangleBorder(
+                borderRadius: AppRadii.input,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -199,29 +347,29 @@ class _StatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final (label, color, background) = switch (status) {
       RequestStatus.pending => (
-        'Pending',
-        AppColors.warning,
-        AppColors.softGold,
+        'PENDING',
+        AppColors.accent,
+        AppColors.softCoral,
       ),
       RequestStatus.accepted => (
-        'Accepted',
+        'ACCEPTED',
         AppColors.success,
         AppColors.softTeal,
       ),
       RequestStatus.completed => (
-        'Completed',
+        'COMPLETED',
         AppColors.primary,
         AppColors.softTeal,
       ),
       RequestStatus.declined => (
-        'Declined',
+        'DECLINED',
         AppColors.accent,
         AppColors.softCoral,
       ),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppRadii.pill,
@@ -230,8 +378,9 @@ class _StatusPill extends StatelessWidget {
         '${pending ? 'Queued · ' : ''}$label',
         style: TextStyle(
           color: color,
-          fontWeight: FontWeight.w700,
-          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          fontSize: 10,
+          letterSpacing: 0.5,
         ),
       ),
     );

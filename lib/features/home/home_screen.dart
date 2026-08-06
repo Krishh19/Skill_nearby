@@ -185,6 +185,19 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   hintText: 'Search skills or people',
+                  border: OutlineInputBorder(
+                    borderRadius: AppRadii.pill,
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: AppRadii.pill,
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: AppRadii.pill,
+                    borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 ),
               ),
               const SizedBox(height: AppSpace.sm),
@@ -752,7 +765,24 @@ class ProfileCard extends StatelessWidget {
           borderRadius: AppRadii.card,
           child: Row(
             children: [
-              ProfileAvatar(profile: profile),
+              Stack(
+                children: [
+                  ProfileAvatar(profile: profile),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.surface, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(width: AppSpace.sm),
               Expanded(
                 child: Column(
@@ -760,26 +790,50 @@ class ProfileCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          profile.name,
-                          style: Theme.of(context).textTheme.titleLarge,
+                        Flexible(
+                          child: Text(
+                            profile.name,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         if (profile.isVerified)
                           GestureDetector(
                             onTap: () => _showVerificationDetails(context),
                             child: const Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.verified,
-                                color: AppColors.primary,
-                                size: 18,
+                              padding: EdgeInsets.only(left: 6),
+                              child: Tooltip(
+                                message: 'Verified Neighbour',
+                                child: Icon(
+                                  Icons.verified,
+                                  color: AppColors.primary,
+                                  size: 18,
+                                ),
                               ),
                             ),
                           ),
                       ],
                     ),
-                    Text(
-                      '${profile.distanceKm.toStringAsFixed(1)} km away  •  ★ ${profile.rating.toStringAsFixed(1)}',
+                    const SizedBox(height: 2),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 4,
+                      children: [
+                        Text(
+                          'Active ${((profile.id.hashCode.abs() % 15) + 2)}m ago',
+                          style: const TextStyle(fontSize: 11.5, color: AppColors.success, fontWeight: FontWeight.w600),
+                        ),
+                        const Text('•', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        Text(
+                          '${profile.distanceKm.toStringAsFixed(1)} km away',
+                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                        ),
+                        const Text('•', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        Text(
+                          '★ ${profile.rating.toStringAsFixed(1)}',
+                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -788,6 +842,27 @@ class ProfileCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
+        if (profile.id == 'p1' || profile.offers.length > 2)
+          Container(
+            margin: const EdgeInsets.only(bottom: AppSpace.xs),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.softGold,
+              borderRadius: AppRadii.pill,
+              border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.bolt, color: AppColors.warning, size: 14),
+                SizedBox(width: 4),
+                Text(
+                  'Standing Offer: Open to all requests',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                ),
+              ],
+            ),
+          ),
         Wrap(
           spacing: AppSpace.xs,
           runSpacing: AppSpace.xs,
@@ -935,13 +1010,29 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                       skillWanted: request.wantedSkill,
                       status: request.status,
                       isPendingSync: request.isPendingSync,
+                      isIncoming: request.isIncoming,
                       requestedAt: DateTime.now().subtract(
-                        Duration(hours: (request.id.hashCode % 12) + 1),
+                        Duration(hours: (request.id.hashCode.abs() % 12) + 1),
                       ),
                       onMessage: () => context.push('/chat/${profile.id}'),
-                      onPrimaryAction: request.status == RequestStatus.completed
-                          ? () => context.push('/rating/${request.id}')
-                          : () => context.push('/complete/${request.id}'),
+                      onAccept: () async {
+                        await ref.read(repositoryProvider).updateProposalStatus(request.id, 'accepted');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Accepted swap request from ${profile.name}!')),
+                          );
+                        }
+                      },
+                      onDecline: () async {
+                        await ref.read(repositoryProvider).updateProposalStatus(request.id, 'declined');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Declined swap request.')),
+                          );
+                        }
+                      },
+                      onComplete: () => context.push('/complete/${request.id}'),
+                      onRate: () => context.push('/rating/${request.id}'),
                     );
                   }),
               ],
@@ -1416,9 +1507,9 @@ class _ProfileSnapshot extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _Stat(value: '12', label: 'Swaps'),
-        _Stat(value: '5', label: 'Skills'),
-        _Stat(value: '93%', label: 'Replies'),
+        _Stat(value: '12', label: 'Swaps Done'),
+        _Stat(value: '5', label: 'Skills Offered'),
+        _Stat(value: '93%', label: 'Response Rate'),
       ],
     ),
   );
@@ -1431,8 +1522,23 @@ class _Stat extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      Text(value, style: Theme.of(context).textTheme.titleLarge),
-      Text(label, style: Theme.of(context).textTheme.bodySmall),
+      Text(
+        value,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+      ),
     ],
   );
 }

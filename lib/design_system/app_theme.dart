@@ -86,4 +86,25 @@ ThemeData appTheme() => ThemeData(
       color: AppColors.textSecondary,
     ),
   ),
+  inputDecorationTheme: const InputDecorationTheme(
+    filled: true,
+    fillColor: AppColors.surface,
+    border: OutlineInputBorder(
+      borderRadius: AppRadii.input,
+      borderSide: BorderSide(color: AppColors.border),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: AppRadii.input,
+      borderSide: BorderSide(color: AppColors.border),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: AppRadii.input,
+      borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+    ),
+    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    hintStyle: TextStyle(
+      fontSize: 14,
+      color: AppColors.textSecondary,
+    ),
+  ),
 );

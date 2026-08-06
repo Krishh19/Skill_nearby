@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../design_system/app_theme.dart';
 import '../../design_system/components.dart';
-import '../../domain/models.dart';
+
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
