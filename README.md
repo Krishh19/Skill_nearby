@@ -76,7 +76,7 @@
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/YourUsername/SkillNearby.git
+   git clone https://github.com/Krishh19/SkillNearby.git
    cd SkillNearby
    ```
 
