@@ -42,36 +42,34 @@ dependencies:
   path_provider: ^2.1.5
   sqlite3_flutter_libs: ^0.5.39
   supabase_flutter: ^2.9.0
-  purchases_flutter: ^8.6.0
+  purchases_flutter: ^8.11.0
   flutter_local_notifications: ^18.0.1
   google_fonts: ^8.2.1
+  lottie: ^3.5.1
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  flutter_launcher_icons: ^0.14.3
   flutter_lints: ^6.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/skill_swap.png"
+  min_sdk_android: 21
 
-# The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
   assets:
     - assets/gettingstarted.png
+    - assets/skill_swap.png
+    - assets/illustrations/empty/
+    - assets/lottie/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

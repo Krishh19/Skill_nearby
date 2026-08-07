@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:lottie/lottie.dart';
+
 import '../../app/providers.dart';
 import '../../design_system/app_theme.dart';
 import '../../design_system/chat_quick_actions.dart';
@@ -400,13 +402,14 @@ class RequestSentScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircleAvatar(
-            radius: 60,
-            backgroundColor: AppColors.softTeal,
-            child: Icon(
-              Icons.volunteer_activism,
-              size: 64,
-              color: AppColors.primary,
+          Lottie.asset(
+            'assets/lottie/Handshake Loop.json',
+            height: 180,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => Image.asset(
+              'assets/illustrations/empty/empty_request_send.png',
+              height: 160,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: AppSpace.lg),
@@ -728,13 +731,18 @@ class CompleteSwapScreen extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircleAvatar(
-            radius: 62,
-            backgroundColor: AppColors.softGold,
-            child: Icon(
-              Icons.handshake_outlined,
-              color: AppColors.accent,
-              size: 70,
+          Image.asset(
+            'assets/illustrations/empty/empty_success_swap.png',
+            height: 160,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const CircleAvatar(
+              radius: 62,
+              backgroundColor: AppColors.softGold,
+              child: Icon(
+                Icons.handshake_outlined,
+                color: AppColors.accent,
+                size: 70,
+              ),
             ),
           ),
           const SizedBox(height: AppSpace.lg),
@@ -780,13 +788,18 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const CircleAvatar(
-          radius: 48,
-          backgroundColor: AppColors.softTeal,
-          child: Icon(
-            Icons.workspace_premium,
-            color: AppColors.primary,
-            size: 54,
+        Image.asset(
+          'assets/illustrations/empty/empty_ratings.png',
+          height: 130,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const CircleAvatar(
+            radius: 48,
+            backgroundColor: AppColors.softTeal,
+            child: Icon(
+              Icons.workspace_premium,
+              color: AppColors.primary,
+              size: 54,
+            ),
           ),
         ),
         const SizedBox(height: AppSpace.lg),
@@ -832,31 +845,174 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
   );
 }
 
-class StandingOffersScreen extends StatelessWidget {
+class _StandingOfferItem {
+  _StandingOfferItem({
+    required this.title,
+    required this.availability,
+    this.isActive = true,
+  });
+
+  final String title;
+  final String availability;
+  bool isActive;
+}
+
+class StandingOffersScreen extends StatefulWidget {
   const StandingOffersScreen({super.key});
+  @override
+  State<StandingOffersScreen> createState() => _StandingOffersScreenState();
+}
+
+class _StandingOffersScreenState extends State<StandingOffersScreen> {
+  final List<_StandingOfferItem> _offers = [
+    _StandingOfferItem(
+      title: 'Graphic design help',
+      availability: 'Available on weekday evenings',
+      isActive: true,
+    ),
+  ];
+
+  void _showAddOfferModal() {
+    HapticFeedback.lightImpact();
+    final titleController = TextEditingController();
+    final availabilityController = TextEditingController(text: 'Available on weekends & evenings');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpace.lg,
+            AppSpace.lg,
+            AppSpace.lg,
+            AppSpace.lg + MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: AppSpace.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                children: const [
+                  Icon(Icons.palette_outlined, color: AppColors.primary, size: 24),
+                  SizedBox(width: 8),
+                  Text('Create New Standing Offer', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: AppSpace.sm),
+              const Text('Standing offers let neighbours know you are open to helping anytime without a prior request.'),
+              const SizedBox(height: AppSpace.md),
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Skill / Offer Title',
+                  hintText: 'e.g. Sourdough Baking Tips, Guitar Coaching',
+                ),
+              ),
+              const SizedBox(height: AppSpace.sm),
+              TextField(
+                controller: availabilityController,
+                decoration: const InputDecoration(
+                  labelText: 'Availability Note',
+                  hintText: 'e.g. Weekday evenings, Sunday mornings',
+                ),
+              ),
+              const SizedBox(height: AppSpace.lg),
+              AppButton(
+                label: 'Save Standing Offer',
+                onPressed: () {
+                  final title = titleController.text.trim();
+                  final availability = availabilityController.text.trim();
+                  if (title.isEmpty) {
+                    HapticFeedback.heavyImpact();
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(content: Text('⚠️ Please enter an offer title.')),
+                    );
+                    return;
+                  }
+                  HapticFeedback.mediumImpact();
+                  setState(() {
+                    _offers.add(
+                      _StandingOfferItem(
+                        title: title,
+                        availability: availability.isNotEmpty ? availability : 'Flexible availability',
+                        isActive: true,
+                      ),
+                    );
+                  });
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('✨ Added standing offer "$title"!')),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => DetailScaffold(
     title: 'Standing offers',
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AppCard(
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.palette_outlined, color: AppColors.primary),
-            title: Text('Graphic design help'),
-            subtitle: Text('Available on weekday evenings'),
-            trailing: Switch(value: true, onChanged: null),
+        Text('Your Active Offers (${_offers.length})', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: AppSpace.xs),
+        if (_offers.isEmpty)
+          FriendlyEmptyState(
+            imageAsset: 'assets/illustrations/empty/empty_standing_offers.png',
+            title: 'Offer a skill anytime',
+            message:
+                'Standing offers help friendly neighbours find you when the time is right.',
+            actionLabel: 'Add an offer',
+            onAction: _showAddOfferModal,
+          )
+        else ...[
+          ..._offers.map(
+            (offer) => Container(
+              margin: const EdgeInsets.only(bottom: AppSpace.xs),
+              child: AppCard(
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.palette_outlined, color: AppColors.primary),
+                  title: Text(offer.title),
+                  subtitle: Text(offer.availability),
+                  trailing: Switch(
+                    value: offer.isActive,
+                    activeThumbColor: AppColors.primary,
+                    onChanged: (val) {
+                      HapticFeedback.lightImpact();
+                      setState(() => offer.isActive = val);
+                    },
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpace.lg),
-        const FriendlyEmptyState(
-          title: 'Offer a skill anytime',
-          message:
-              'Standing offers help friendly neighbours find you when the time is right.',
-          actionLabel: 'Add an offer',
-          onAction: _noAction,
-        ),
+          const SizedBox(height: AppSpace.md),
+          AppButton(
+            label: '+ Create Another Offer',
+            isSecondary: true,
+            onPressed: _showAddOfferModal,
+          ),
+        ],
       ],
     ),
   );
@@ -870,6 +1026,14 @@ class SafetyScreen extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Center(
+          child: Image.asset(
+            'assets/illustrations/empty/empty_safety.png',
+            height: 150,
+            fit: BoxFit.contain,
+          ),
+        ),
+        const SizedBox(height: AppSpace.sm),
         const AppCard(
           child: ListTile(
             contentPadding: EdgeInsets.zero,
@@ -973,19 +1137,27 @@ class DetailScaffold extends StatelessWidget {
   final String title;
   final Widget child;
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          appBar: AppBar(title: Text(title), backgroundColor: AppColors.background),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpace.lg),
-              child: child,
-            ),
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+          backgroundColor: theme.scaffoldBackgroundColor,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpace.lg),
+            child: child,
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _Section extends StatelessWidget {
@@ -1005,5 +1177,3 @@ class _Section extends StatelessWidget {
     ),
   );
 }
-
-void _noAction() {}

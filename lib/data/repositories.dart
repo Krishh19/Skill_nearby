@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../domain/models.dart';
 import 'local_store.dart';
+import 'notification_service.dart';
 
 abstract interface class RemoteTransport {
   Future<void> send(PendingOperation operation);
@@ -35,13 +36,16 @@ class SkillRepository {
     required DriftLocalStore localStore,
     required PreferencesStore preferencesStore,
     required RemoteTransport transport,
+    NotificationService? notificationService,
   }) : _localStore = localStore,
        _preferencesStore = preferencesStore,
-       _transport = transport;
+       _transport = transport,
+       _notificationService = notificationService;
 
   final DriftLocalStore _localStore;
   final PreferencesStore _preferencesStore;
   final RemoteTransport _transport;
+  final NotificationService? _notificationService;
 
   final _profiles = _StreamValue<List<SkillProfile>>(_seedProfiles);
   final _requests = _StreamValue<List<SwapRequest>>(_seedRequests);
@@ -54,19 +58,20 @@ class SkillRepository {
     _preferencesStore.read(),
   );
 
-  final _myProfile = _StreamValue<SkillProfile>(
-    const SkillProfile(
-      id: 'me',
-      name: 'Aanya Sharma',
-      initials: 'AS',
-      distanceKm: 0.0,
-      rating: 4.9,
-      responseRate: 93,
-      offers: ['Graphic Design', 'Branding', 'Canva'],
-      wants: ['Guitar', 'Gardening'],
-      bio: 'Passionate graphic designer and branding strategist.',
-      isVerified: true,
-    ),
+  late final _myProfile = _StreamValue<SkillProfile>(
+    _preferencesStore.readMyProfile() ??
+        const SkillProfile(
+          id: 'me',
+          name: 'Krish P',
+          initials: 'KP',
+          distanceKm: 0.0,
+          rating: 4.9,
+          responseRate: 93,
+          offers: ['Graphic Design', 'Branding', 'Canva'],
+          wants: ['Guitar', 'Gardening'],
+          bio: 'Passionate graphic designer and branding strategist.',
+          isVerified: true,
+        ),
   );
 
   Stream<List<SkillProfile>> watchProfiles() => _profiles.stream;
@@ -175,6 +180,52 @@ class SkillRepository {
     );
   }
 
+  Future<void> updateRequestStatus(String requestId, RequestStatus status) async {
+    SwapRequest? targetRequest;
+    for (final r in _requests.value) {
+      if (r.id == requestId) {
+        targetRequest = r;
+        break;
+      }
+    }
+
+    _requests.add(
+      _requests.value
+          .map(
+            (request) => request.id == requestId
+                ? request.copyWith(
+                    status: status,
+                    isPendingSync: true,
+                  )
+                : request,
+          )
+          .toList(),
+    );
+
+    if (status == RequestStatus.accepted && targetRequest != null) {
+      String neighbourName = 'Neighbour';
+      for (final p in _profiles.value) {
+        if (p.id == targetRequest.profileId) {
+          neighbourName = p.name;
+          break;
+        }
+      }
+      _notificationService?.showSwapAcceptedNotification(
+        neighbourName: neighbourName,
+        skillOffered: targetRequest.offeredSkill,
+        requestId: requestId,
+      );
+    }
+
+    await _enqueue(
+      status == RequestStatus.accepted
+          ? OperationKind.requestSwap
+          : OperationKind.completeSwap,
+      requestId,
+      payload: {'status': status.name},
+    );
+  }
+
   Future<void> updateProposalStatus(String messageId, String status) async {
     _messages.add(
       _messages.value
@@ -239,6 +290,7 @@ class SkillRepository {
       avatarUrl: avatarUrl ?? _myProfile.value.avatarUrl,
     );
     _myProfile.add(updated);
+    await _preferencesStore.writeMyProfile(updated);
 
     await _enqueue(
       OperationKind.updateProfile,
@@ -350,7 +402,7 @@ class _StreamValue<T> {
   }
 }
 
-const _seedProfiles = <SkillProfile>[
+const _seedProfiles = [
   SkillProfile(
     id: 'rohan',
     name: 'Rohan Verma',
@@ -363,6 +415,7 @@ const _seedProfiles = <SkillProfile>[
     bio: 'Passionate musician and teacher. Love helping people learn!',
     isVerified: true,
     hasVideo: true,
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'neha',
@@ -374,6 +427,7 @@ const _seedProfiles = <SkillProfile>[
     offers: ['Yoga', 'Meditation', 'Wellness'],
     wants: ['Cooking', 'Gardening'],
     bio: 'Yoga teacher who loves a calm neighbourhood morning.',
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'arjun',
@@ -385,6 +439,7 @@ const _seedProfiles = <SkillProfile>[
     offers: ['Video Editing', 'Adobe Premiere'],
     wants: ['Guitar Lessons'],
     bio: 'I turn local stories into thoughtful short films.',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'maya',
@@ -397,6 +452,7 @@ const _seedProfiles = <SkillProfile>[
     wants: ['Watercolour', 'House Plants'],
     bio: 'Home baker with a spare starter and a soft spot for shared meals.',
     isVerified: true,
+    avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'kabir',
@@ -408,6 +464,7 @@ const _seedProfiles = <SkillProfile>[
     offers: ['Cycle Repair', 'Furniture Fixes', 'Tool Advice'],
     wants: ['Spoken Spanish', 'Bread Baking'],
     bio: 'Weekend fixer. Happy to help a good thing last a little longer.',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'sana',
@@ -421,6 +478,7 @@ const _seedProfiles = <SkillProfile>[
     bio:
         'Illustrator, stationery enthusiast, and patient beginner-friendly teacher.',
     hasVideo: true,
+    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80',
   ),
 ];
 

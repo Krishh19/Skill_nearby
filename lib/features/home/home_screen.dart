@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../data/notification_service.dart';
 import '../../design_system/app_theme.dart';
 import '../../design_system/components.dart';
 import '../../design_system/request_card.dart';
@@ -212,21 +215,30 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                   itemBuilder: (_, index) {
                     final cat = categories[index];
                     final isSelected = selectedCategory == cat;
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    final chipBg = isSelected
+                        ? (isDark ? DarkColors.teal : AppColors.primary)
+                        : (isDark ? DarkColors.surface : AppColors.surface);
+                    final chipText = isSelected
+                        ? (isDark ? const Color(0xFF0B1B17) : Colors.white)
+                        : (isDark ? DarkColors.ink : AppColors.textPrimary);
+                    final chipBorder = isSelected
+                        ? (isDark ? DarkColors.teal : AppColors.primary)
+                        : (isDark ? DarkColors.line : AppColors.border);
+
                     return KeyedSubtree(
                       key: _chipKeys[index],
                       child: ChoiceChip(
                         label: Text(cat),
                         selected: isSelected,
-                        selectedColor: AppColors.primary,
-                        backgroundColor: AppColors.surface,
+                        selectedColor: isDark ? DarkColors.teal : AppColors.primary,
+                        backgroundColor: chipBg,
                         labelStyle: TextStyle(
-                          color: isSelected ? AppColors.surface : AppColors.textPrimary,
+                          color: chipText,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
-                        side: BorderSide(
-                          color: isSelected ? AppColors.primary : AppColors.border,
-                        ),
+                        side: BorderSide(color: chipBorder),
                         onSelected: (_) {
                           HapticFeedback.lightImpact();
                           setState(() => selectedCategory = cat);
@@ -270,23 +282,78 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
               const SizedBox(height: AppSpace.md),
               if (showMap)
                 _NearbyMapCanvas(profiles: matches)
-              else if (matches.isEmpty)
+              else if (matches.isEmpty || ref.watch(debugForceEmptyStatesProvider))
                 FriendlyEmptyState(
-                  title: 'No matches just yet',
-                  message: 'Try a wider radius or select a different category.',
+                  imageAsset: query.isNotEmpty
+                      ? 'assets/illustrations/empty/empty_search.png'
+                      : (selectedCategory != 'All'
+                          ? 'assets/illustrations/empty/empty_radius.png'
+                          : 'assets/illustrations/empty/empty_nearby.png'),
+                  title: query.isNotEmpty
+                      ? 'No matches for "$query"'
+                      : (selectedCategory != 'All'
+                          ? 'No $selectedCategory skills nearby'
+                          : 'No neighbours nearby yet'),
+                  message: query.isNotEmpty
+                      ? 'Try searching for a broader term like "Guitar", "Design", or "Baking".'
+                      : (selectedCategory != 'All'
+                          ? 'Try expanding your distance radius or switching category filters.'
+                          : 'Be the first to share your skills in your saved area or invite local neighbours.'),
                   actionLabel: 'Reset filters',
                   onAction: () => setState(() {
                     query = '';
                     selectedCategory = 'All';
                   }),
                 )
-              else
+              else ...[
                 ...matches.map(
                   (profile) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpace.sm),
                     child: ProfileCard(profile: profile),
                   ),
                 ),
+                const SizedBox(height: AppSpace.xs),
+                AppCard(
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/illustrations/empty/empty_invite.png',
+                        height: 120,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: AppSpace.xs),
+                      const Text(
+                        'Invite Local Neighbours',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Skill Nearby grows with your community. Invite friends & neighbours nearby to start swapping skills!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: AppSpace.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('📲 Invite link copied to clipboard! Share with nearby friends.')),
+                            );
+                          },
+                          icon: const Icon(Icons.share_outlined, size: 16),
+                          label: const Text('Share Invite Link'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: const BorderSide(color: AppColors.primary),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           );
         },
@@ -843,25 +910,34 @@ class ProfileCard extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.sm),
         if (profile.id == 'p1' || profile.offers.length > 2)
-          Container(
-            margin: const EdgeInsets.only(bottom: AppSpace.xs),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.softGold,
-              borderRadius: AppRadii.pill,
-              border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.bolt, color: AppColors.warning, size: 14),
-                SizedBox(width: 4),
-                Text(
-                  'Standing Offer: Open to all requests',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          Builder(
+            builder: (ctx) {
+              final isDark = Theme.of(ctx).brightness == Brightness.dark;
+              return Container(
+                margin: const EdgeInsets.only(bottom: AppSpace.xs),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF332B18) : AppColors.softGold,
+                  borderRadius: AppRadii.pill,
+                  border: Border.all(color: isDark ? const Color(0xFF665322) : AppColors.warning.withValues(alpha: 0.5)),
                 ),
-              ],
-            ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.bolt, color: AppColors.warning, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Standing Offer: Open to all requests',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? const Color(0xFFFFD580) : AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         Wrap(
           spacing: AppSpace.xs,
@@ -974,9 +1050,10 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpace.md),
-                if (visible.isEmpty)
+                if (visible.isEmpty || ref.watch(debugForceEmptyStatesProvider))
                   switch (selected) {
                     0 => FriendlyEmptyState(
+                        imageAsset: 'assets/illustrations/empty/empty_requests .png',
                         title: 'No incoming requests yet',
                         message:
                             'When neighbours reach out to trade skills with you, they will show up here.',
@@ -984,6 +1061,7 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                         onAction: () => context.go('/nearby'),
                       ),
                     1 => FriendlyEmptyState(
+                        imageAsset: 'assets/illustrations/empty/empty_requests .png',
                         title: 'No outgoing requests',
                         message:
                             'Browse nearby skills and start a new swap request with a neighbour.',
@@ -991,6 +1069,7 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                         onAction: () => context.go('/nearby'),
                       ),
                     _ => FriendlyEmptyState(
+                        imageAsset: 'assets/illustrations/empty/empty_history.png',
                         title: 'No completed swaps yet',
                         message:
                             'Completed skill exchanges and mutual ratings will be stored here.',
@@ -1016,18 +1095,42 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                       ),
                       onMessage: () => context.push('/chat/${profile.id}'),
                       onAccept: () async {
-                        await ref.read(repositoryProvider).updateProposalStatus(request.id, 'accepted');
+                        await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.accepted);
                         if (context.mounted) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Accepted swap request from ${profile.name}!')),
+                            SnackBar(
+                              content: Text('🎉 Accepted swap request from ${profile.name}!'),
+                              action: SnackBarAction(
+                                label: 'UNDO',
+                                textColor: AppColors.softGold,
+                                onPressed: () async {
+                                  await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.pending);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Reverted request back to Pending.')),
+                                    );
+                                  }
+                                },
+                              ),
+                              duration: const Duration(seconds: 5),
+                            ),
                           );
                         }
                       },
                       onDecline: () async {
-                        await ref.read(repositoryProvider).updateProposalStatus(request.id, 'declined');
+                        await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.declined);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Declined swap request.')),
+                          );
+                        }
+                      },
+                      onUndoAccept: () async {
+                        await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.pending);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Reverted request back to Pending.')),
                           );
                         }
                       },
@@ -1049,10 +1152,11 @@ class MessagesScreen extends ConsumerWidget {
     final messages = ref.watch(messagesProvider).value ?? const [];
     return PageFrame(
       title: 'Messages',
-      child: messages.isEmpty
+      child: (messages.isEmpty || ref.watch(debugForceEmptyStatesProvider))
           ? FriendlyEmptyState(
+              imageAsset: 'assets/illustrations/empty/empty_messages.png',
               title: 'No messages yet',
-              message: 'Start a conversation after you send a request.',
+              message: 'Start a conversation after you send or accept a swap request.',
               actionLabel: 'Explore nearby',
               onAction: () => context.go('/nearby'),
             )
@@ -1099,8 +1203,15 @@ class MessagesScreen extends ConsumerWidget {
   }
 }
 
-class MyProfileScreen extends ConsumerWidget {
+class MyProfileScreen extends ConsumerStatefulWidget {
   const MyProfileScreen({super.key});
+
+  @override
+  ConsumerState<MyProfileScreen> createState() => _MyProfileScreenState();
+}
+
+class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
+  bool _isCardExpanded = false;
 
   void _showCreditsHistory(BuildContext context) {
     HapticFeedback.lightImpact();
@@ -1133,6 +1244,14 @@ class MyProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+              Center(
+                child: Image.asset(
+                  'assets/illustrations/empty/empty_credits.png',
+                  height: 120,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: AppSpace.sm),
               Row(
                 children: [
                   Container(
@@ -1193,7 +1312,7 @@ class MyProfileScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final myProfileAsync = ref.watch(myProfileProvider);
     final profile = myProfileAsync.value ?? ref.read(repositoryProvider).myProfile;
 
@@ -1202,37 +1321,115 @@ class MyProfileScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppCard(
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: AppColors.softGold,
-                  child: Text(
-                    profile.initials,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() => _isCardExpanded = !_isCardExpanded);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              child: AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        ProfileAvatar(profile: profile),
+                        const SizedBox(width: AppSpace.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    profile.name,
+                                    style: Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  if (profile.isVerified) ...[
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.verified, color: AppColors.primary, size: 18),
+                                  ],
+                                ],
+                              ),
+                              Text('${profile.rating.toStringAsFixed(1)} ★  •  Response rate ${profile.responseRate}%'),
+                              const SizedBox(height: 2),
+                              const Text('12 swaps completed', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          _isCardExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                          color: AppColors.primary,
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(width: AppSpace.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        profile.name,
-                        style: Theme.of(context).textTheme.titleLarge,
+                    if (_isCardExpanded) ...[
+                      const Divider(height: 24),
+                      const Text(
+                        'Bio & Intro',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
                       ),
-                      Text('${profile.rating.toStringAsFixed(1)} ★  •  Response rate ${profile.responseRate}%'),
-                      const SizedBox(height: AppSpace.xs),
-                      const Text('12 swaps completed'),
+                      const SizedBox(height: 4),
+                      Text(
+                        profile.bio.isNotEmpty ? profile.bio : 'No bio added yet.',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: AppSpace.md),
+                      const Text(
+                        'Skills Offered / Teach',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: profile.offers
+                            .map((s) => SkillChip(label: s, selected: true))
+                            .toList(),
+                      ),
+                      const SizedBox(height: AppSpace.md),
+                      const Text(
+                        'Skills Wanted / Learn',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.accent),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: profile.wants
+                            .map((s) => SkillChip(label: s))
+                            .toList(),
+                      ),
+                      const SizedBox(height: AppSpace.md),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => context.push('/edit-profile'),
+                              icon: const Icon(Icons.edit_outlined, size: 16),
+                              label: const Text('Edit Profile Details'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                                side: const BorderSide(color: AppColors.primary),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 4),
+                      const Center(
+                        child: Text(
+                          'Tap card to expand details ▾',
+                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                        ),
+                      ),
                     ],
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           const SizedBox(height: AppSpace.sm),
@@ -1251,6 +1448,19 @@ class MyProfileScreen extends ConsumerWidget {
           const SizedBox(height: AppSpace.sm),
           const _RecentKindWordsCarousel(),
           const SizedBox(height: AppSpace.sm),
+          _SettingsTile(
+            icon: Theme.of(context).brightness == Brightness.dark
+                ? Icons.dark_mode_rounded
+                : Icons.light_mode_rounded,
+            title: 'App Theme System',
+            subtitle: ref.watch(appThemeModeProvider) == ThemeMode.dark
+                ? 'Dark Theme Active (Warm Dark System v1)'
+                : 'Light Theme Active',
+            onTap: () {
+              HapticFeedback.lightImpact();
+              ref.read(appThemeModeProvider.notifier).toggleDark();
+            },
+          ),
           _SettingsTile(
             icon: Icons.person_outline,
             title: 'Edit profile & skills',
@@ -1281,6 +1491,8 @@ class MyProfileScreen extends ConsumerWidget {
                 : 'Flexible',
             onTap: () {},
           ),
+          const SizedBox(height: AppSpace.sm),
+          const _DeveloperDebugSection(),
         ],
       ),
     );
@@ -1319,18 +1531,26 @@ class _BadgeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-            color: AppColors.softGold,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF332B18) : AppColors.softGold,
             shape: BoxShape.circle,
           ),
           child: Text(icon, style: const TextStyle(fontSize: 22)),
         ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: isDark ? DarkColors.stone : AppColors.textSecondary,
+          ),
+        ),
       ],
     );
   }
@@ -1406,18 +1626,42 @@ class ProfileAvatar extends StatelessWidget {
   final SkillProfile profile;
   final bool compact;
   @override
-  Widget build(BuildContext context) => CircleAvatar(
-    radius: compact ? 21 : 28,
-    backgroundColor: AppColors.softGold,
-    child: Text(
-      profile.initials,
-      style: TextStyle(
-        color: AppColors.primary,
-        fontWeight: FontWeight.w800,
-        fontSize: compact ? 13 : 16,
+  Widget build(BuildContext context) {
+    final radius = compact ? 21.0 : 28.0;
+    if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
+      final url = profile.avatarUrl!;
+      if (url.startsWith('http')) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: AppColors.softGold,
+          backgroundImage: NetworkImage(url),
+        );
+      } else {
+        try {
+          final file = File(url);
+          if (file.existsSync()) {
+            return CircleAvatar(
+              radius: radius,
+              backgroundColor: AppColors.softGold,
+              backgroundImage: FileImage(file),
+            );
+          }
+        } catch (_) {}
+      }
+    }
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: AppColors.softGold,
+      child: Text(
+        profile.initials,
+        style: TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w800,
+          fontSize: compact ? 13 : 16,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _SettingsTile extends StatelessWidget {
@@ -1433,71 +1677,347 @@ class _SettingsTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: AppSpace.xs),
-    child: Material(
-      color: AppColors.surface,
-      borderRadius: AppRadii.card,
-      elevation: 0,
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        borderRadius: AppRadii.card,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.md,
-            vertical: 14,
-          ),
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: AppRadii.card,
-            boxShadow: AppShadows.card,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(icon, color: AppColors.primary, size: 22),
-              const SizedBox(width: AppSpace.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? DarkColors.teal : AppColors.primary;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpace.xs),
+      child: AppCard(
+        padding: EdgeInsets.zero,
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          borderRadius: AppRadii.card,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.md,
+              vertical: 14,
+            ),
+            child: Row(
+              children: [
+                Icon(icon, color: iconColor, size: 22),
+                const SizedBox(width: AppSpace.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                      if (subtitle != null)
+                        Text(
+                          subtitle!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? DarkColors.stone : AppColors.textSecondary,
+                          ),
                         ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpace.sm),
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-            ],
+                Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: isDark ? DarkColors.stone : AppColors.textSecondary,
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
+}
+
+class _DeveloperDebugSection extends ConsumerWidget {
+  const _DeveloperDebugSection();
+
+  void _showEmptyStateGallery(BuildContext context) {
+    HapticFeedback.lightImpact();
+    final items = const [
+      (
+        'empty_nearby.png',
+        'Nearby Main Feed',
+        'Displayed when no neighbours are registered in the saved area.',
+      ),
+      (
+        'empty_search.png',
+        'Search Results',
+        'Displayed when search term returns zero matching skills or people.',
+      ),
+      (
+        'empty_radius.png',
+        'Radius / Category Filter',
+        'Displayed when distance radius or category filter yields no results.',
+      ),
+      (
+        'empty_request_send.png',
+        'Request Sent Confirmation',
+        'Displayed on the Request Sent confirmation screen after submitting a swap request.',
+      ),
+      (
+        'empty_requests .png',
+        'Incoming & Outgoing Requests',
+        'Displayed in Requests tab when no pending swap requests exist.',
+      ),
+      (
+        'empty_history.png',
+        'Completed Swaps History',
+        'Displayed in Completed tab when no swaps have been completed yet.',
+      ),
+      (
+        'empty_messages.png',
+        'Messages & Chat',
+        'Displayed in Messages tab when user has zero active conversations.',
+      ),
+      (
+        'empty_credits.png',
+        'Skill Credits Balance',
+        'Displayed when user has 0 skill credits or views rewards activity.',
+      ),
+      (
+        'empty_offline.png',
+        'Offline Data Screen',
+        'Displayed when app is offline or managing local storage sync.',
+      ),
+      (
+        'empty_standing_offers.png',
+        'Standing Offers',
+        'Displayed when user has no active standing community offers.',
+      ),
+      (
+        'empty_skills.png',
+        'Profile Skills List',
+        'Displayed during profile setup before user adds offered skills.',
+      ),
+      (
+        'empty_ratings.png',
+        'Reviews & Ratings',
+        'Displayed when user or profile has no ratings / reviews yet.',
+      ),
+      (
+        'empty_invite.png',
+        'Community / Invite',
+        'Displayed to encourage inviting local neighbours to the network.',
+      ),
+      (
+        'empty_success_swap.png',
+        'Swap Completion Celebration',
+        'Displayed upon completing a successful swap session.',
+      ),
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (_, scrollController) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg, vertical: AppSpace.md),
+            child: Column(
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: AppSpace.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.collections_outlined, color: AppColors.primary, size: 26),
+                    const SizedBox(width: AppSpace.sm),
+                    Expanded(
+                      child: Text(
+                        'Empty State Gallery (13 Assets)',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpace.xs),
+                const Text(
+                  'Matched directly with emptystates.csv specification:',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                ),
+                const SizedBox(height: AppSpace.md),
+                Expanded(
+                  child: ListView.separated(
+                    controller: scrollController,
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpace.md),
+                    itemBuilder: (_, index) {
+                      final (file, title, desc) = items[index];
+                      return Container(
+                        padding: const EdgeInsets.all(AppSpace.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: AppRadii.card,
+                          border: Border.all(color: AppColors.border),
+                          boxShadow: AppShadows.card,
+                        ),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/illustrations/empty/$file',
+                              height: 120,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 40, color: AppColors.accent),
+                            ),
+                            const SizedBox(height: AppSpace.xs),
+                            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            const SizedBox(height: 2),
+                            Text(
+                              desc,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'assets/illustrations/empty/$file',
+                              style: const TextStyle(fontSize: 10, fontFamily: 'IBM Plex Mono', color: AppColors.primary),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final forceEmpty = ref.watch(debugForceEmptyStatesProvider);
+
+    return Container(
+      margin: const EdgeInsets.only(top: AppSpace.sm),
+      decoration: BoxDecoration(
+        color: AppColors.softGold.withValues(alpha: 0.6),
+        borderRadius: AppRadii.card,
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpace.md, AppSpace.md, AppSpace.md, 0),
+            child: Row(
+              children: const [
+                Icon(Icons.bug_report_outlined, color: AppColors.warning, size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Developer / Debug Mode',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                ),
+              ],
+            ),
+          ),
+          SwitchListTile(
+            value: forceEmpty,
+            activeThumbColor: AppColors.primary,
+            title: const Text('Force Empty States (Preview)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            subtitle: const Text(
+              'Simulates cold start empty states across Nearby, Requests, and Messages',
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            ),
+            onChanged: (val) {
+              HapticFeedback.lightImpact();
+              ref.read(debugForceEmptyStatesProvider.notifier).set(val);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpace.md, 0, AppSpace.md, AppSpace.md),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showEmptyStateGallery(context),
+                    icon: const Icon(Icons.grid_view_rounded, size: 16),
+                    label: const Text('View 13 Empty Illustrations Gallery'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      HapticFeedback.lightImpact();
+                      final service = ref.read(notificationServiceProvider);
+                      await service.showSwapAcceptedNotification(
+                        neighbourName: 'Rohan Verma',
+                        skillOffered: 'Acoustic Guitar',
+                        requestId: 'debug_test_123',
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('🔔 Push alert triggered: "Rohan Verma accepted your swap!"'),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.notifications_active, size: 16, color: Colors.white),
+                    label: const Text('Test Push Notification Alert'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('⚡ Supabase Realtime WebSocket stream channel connected! Listening on public:swaps & public:messages.'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.bolt, size: 16),
+                    label: const Text('Test Supabase Realtime Sync'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.accent,
+                      side: const BorderSide(color: AppColors.accent),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ProfileSnapshot extends StatelessWidget {
@@ -1590,7 +2110,7 @@ class _RecentKindWordsCarouselState extends State<_RecentKindWordsCarousel> {
 
   final List<Map<String, String>> testimonials = const [
     {
-      'quote': '“Aanya made the whole poster process feel easy and fun.”',
+      'quote': '“Krish made the whole poster process feel easy and fun.”',
       'author': 'Kabir · Cycle repair swap',
     },
     {

@@ -135,6 +135,48 @@ class PreferencesStore {
     _box = await Hive.openBox<dynamic>(_boxName);
   }
 
+  static const _nameKey = 'my_profile_name';
+  static const _bioKey = 'my_profile_bio';
+  static const _offersKey = 'my_profile_offers';
+  static const _wantsKey = 'my_profile_wants';
+  static const _avatarUrlKey = 'my_profile_avatar_url';
+
+  SkillProfile? readMyProfile() {
+    final name = _box.get(_nameKey) as String?;
+    if (name == null || name.trim().isEmpty) return null;
+    final bio = _box.get(_bioKey, defaultValue: '') as String;
+    final rawOffers = _box.get(_offersKey, defaultValue: <dynamic>[]) as List;
+    final rawWants = _box.get(_wantsKey, defaultValue: <dynamic>[]) as List;
+    final offers = rawOffers.map((e) => e.toString()).toList();
+    final wants = rawWants.map((e) => e.toString()).toList();
+    final avatarUrl = _box.get(_avatarUrlKey) as String?;
+
+    final nameParts = name.trim().split(' ');
+    final initials = nameParts.map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+
+    return SkillProfile(
+      id: 'me',
+      name: name,
+      initials: initials.isNotEmpty ? initials : 'ME',
+      distanceKm: 0.0,
+      rating: 4.9,
+      responseRate: 93,
+      offers: offers.isNotEmpty ? offers : ['Graphic Design', 'Branding', 'Canva'],
+      wants: wants.isNotEmpty ? wants : ['Guitar', 'Gardening'],
+      bio: bio,
+      isVerified: true,
+      avatarUrl: avatarUrl,
+    );
+  }
+
+  Future<void> writeMyProfile(SkillProfile profile) => _box.putAll({
+    _nameKey: profile.name,
+    _bioKey: profile.bio,
+    _offersKey: profile.offers,
+    _wantsKey: profile.wants,
+    if (profile.avatarUrl != null) _avatarUrlKey: profile.avatarUrl,
+  });
+
   AppPreferences read() => AppPreferences(
     onboardingComplete: _box.get(_onboardedKey, defaultValue: false) as bool,
     radiusKm: _box.get(_radiusKey, defaultValue: 2) as int,

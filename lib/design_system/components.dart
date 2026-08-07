@@ -28,30 +28,36 @@ class AppButton extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 52,
-    child: isSecondary
-        ? OutlinedButton.icon(
-            onPressed: onPressed == null ? null : _handlePress,
-            icon: icon == null ? const SizedBox.shrink() : Icon(icon),
-            label: Text(label),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? DarkColors.teal : AppColors.primary;
+    final primaryTextColor = isDark ? const Color(0xFF0B1B17) : Colors.white;
+
+    return SizedBox(
+      height: 52,
+      child: isSecondary
+          ? OutlinedButton.icon(
+              onPressed: onPressed == null ? null : _handlePress,
+              icon: icon == null ? const SizedBox.shrink() : Icon(icon),
+              label: Text(label),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: primaryColor,
+                side: BorderSide(color: isDark ? DarkColors.tealDeep : AppColors.primary),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+              ),
+            )
+          : ElevatedButton.icon(
+              onPressed: onPressed == null ? null : _handlePress,
+              icon: icon == null ? const SizedBox.shrink() : Icon(icon),
+              label: Text(label),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: primaryTextColor,
+                shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+              ),
             ),
-          )
-        : ElevatedButton.icon(
-            onPressed: onPressed == null ? null : _handlePress,
-            icon: icon == null ? const SizedBox.shrink() : Icon(icon),
-            label: Text(label),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.surface,
-              shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
-            ),
-          ),
-  );
+    );
+  }
 }
 
 class AppCard extends StatelessWidget {
@@ -59,20 +65,37 @@ class AppCard extends StatelessWidget {
     required this.child,
     super.key,
     this.padding = const EdgeInsets.all(AppSpace.md),
+    this.color,
   });
   final Widget child;
   final EdgeInsets padding;
+  final Color? color;
+
   @override
-  Widget build(BuildContext context) => Container(
-    padding: padding,
-    decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: AppRadii.card,
-      border: Border.all(color: AppColors.border.withValues(alpha: 0.6), width: 1),
-      boxShadow: AppShadows.card,
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = color ?? (isDark ? DarkColors.surface : AppColors.surface);
+    final borderColor = isDark ? DarkColors.line : AppColors.border.withValues(alpha: 0.6);
+
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: AppRadii.card,
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: isDark
+            ? [
+                const BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
+                ),
+              ]
+            : AppShadows.card,
+      ),
+      child: child,
+    );
+  }
 }
 
 class SkillChip extends StatelessWidget {
@@ -89,23 +112,32 @@ class SkillChip extends StatelessWidget {
   final VoidCallback? onDeleted;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      color: selected ? AppColors.primary : AppColors.softTeal,
-      borderRadius: AppRadii.pill,
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: selected ? AppColors.surface : AppColors.primary,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = selected
+        ? (isDark ? DarkColors.teal : AppColors.primary)
+        : (isDark ? DarkColors.surface2 : AppColors.softTeal);
+    final textCol = selected
+        ? (isDark ? const Color(0xFF0B1B17) : Colors.white)
+        : (isDark ? DarkColors.teal : AppColors.primary);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: AppRadii.pill,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: textCol,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
           ),
-        ),
         if (level != null) ...[
           const SizedBox(width: 6),
           Container(
@@ -144,6 +176,7 @@ class SkillChip extends StatelessWidget {
       ],
     ),
   );
+}
 }
 
 class OfflineBanner extends StatelessWidget {
@@ -204,12 +237,44 @@ class FriendlyEmptyState extends StatelessWidget {
     required this.message,
     required this.actionLabel,
     required this.onAction,
+    this.imageAsset,
     super.key,
   });
+
   final String title;
   final String message;
   final String actionLabel;
   final VoidCallback onAction;
+  final String? imageAsset;
+
+  Widget _buildIllustration() {
+    if (imageAsset != null && imageAsset!.isNotEmpty) {
+      return Image.asset(
+        imageAsset!,
+        height: 160,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => const CircleAvatar(
+          radius: 38,
+          backgroundColor: AppColors.softGold,
+          child: Icon(
+            Icons.volunteer_activism_outlined,
+            color: AppColors.accent,
+            size: 34,
+          ),
+        ),
+      );
+    }
+    return const CircleAvatar(
+      radius: 38,
+      backgroundColor: AppColors.softGold,
+      child: Icon(
+        Icons.volunteer_activism_outlined,
+        color: AppColors.accent,
+        size: 34,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
@@ -217,20 +282,12 @@ class FriendlyEmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircleAvatar(
-            radius: 38,
-            backgroundColor: AppColors.softGold,
-            child: Icon(
-              Icons.volunteer_activism_outlined,
-              color: AppColors.accent,
-              size: 34,
-            ),
-          ),
+          _buildIllustration(),
           const SizedBox(height: AppSpace.md),
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
           const SizedBox(height: AppSpace.xs),
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: AppSpace.md),
+          Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, height: 1.4)),
+          const SizedBox(height: AppSpace.lg),
           AppButton(label: actionLabel, onPressed: onAction),
         ],
       ),

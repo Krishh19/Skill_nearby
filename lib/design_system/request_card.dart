@@ -26,6 +26,7 @@ class RequestCardWidget extends StatelessWidget {
     this.onDecline,
     this.onComplete,
     this.onRate,
+    this.onUndoAccept,
     this.onPrimaryAction,
   });
 
@@ -42,6 +43,7 @@ class RequestCardWidget extends StatelessWidget {
   final VoidCallback? onDecline;
   final VoidCallback? onComplete;
   final VoidCallback? onRate;
+  final VoidCallback? onUndoAccept;
   final VoidCallback? onPrimaryAction;
 
   String _timeAgo(DateTime dt) {
@@ -66,14 +68,30 @@ class RequestCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? DarkColors.surface : AppColors.surface;
+    final borderColor = isDark ? DarkColors.line : AppColors.border;
+    final stripBg = isDark ? DarkColors.surface2 : AppColors.background;
+    final primaryTextColor = isDark ? DarkColors.ink : AppColors.textPrimary;
+    final secondaryTextColor = isDark ? DarkColors.stone : AppColors.textSecondary;
+    final tealColor = isDark ? DarkColors.teal : AppColors.primary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpace.sm),
       padding: const EdgeInsets.all(AppSpace.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: AppRadii.card,
-        boxShadow: AppShadows.card,
-        border: Border.all(color: AppColors.border),
+        boxShadow: isDark
+            ? [
+                const BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
+                ),
+              ]
+            : AppShadows.card,
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,11 +101,11 @@ class RequestCardWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: AppColors.softGold,
+                backgroundColor: isDark ? DarkColors.surface2 : AppColors.softGold,
                 child: Text(
                   initials,
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: tealColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -103,6 +121,7 @@ class RequestCardWidget extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
+                        color: primaryTextColor,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -111,7 +130,7 @@ class RequestCardWidget extends StatelessWidget {
                       _timelineText,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         fontSize: 11,
-                        color: AppColors.textSecondary,
+                        color: secondaryTextColor,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -132,24 +151,24 @@ class RequestCardWidget extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: stripBg,
               borderRadius: AppRadii.input,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.swap_horiz_rounded,
                   size: 20,
-                  color: AppColors.primary,
+                  color: isDark ? DarkColors.coral : AppColors.primary,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text.rich(
                     TextSpan(
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textPrimary,
+                        color: primaryTextColor,
                         height: 1.35,
                       ),
                       children: [
@@ -157,10 +176,10 @@ class RequestCardWidget extends StatelessWidget {
                           text: skillOffered,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        const TextSpan(
+                        TextSpan(
                           text: '  for  ',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: secondaryTextColor,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -178,13 +197,19 @@ class RequestCardWidget extends StatelessWidget {
           const SizedBox(height: AppSpace.sm),
 
           // Action Buttons according to status and direction
-          _buildActionRow(),
+          _buildActionRow(context),
         ],
       ),
     );
   }
 
-  Widget _buildActionRow() {
+  Widget _buildActionRow(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryBtnBg = isDark ? DarkColors.teal : AppColors.primary;
+    final primaryBtnText = isDark ? const Color(0xFF0B1B17) : Colors.white;
+    final accentBtnColor = isDark ? DarkColors.coral : AppColors.accent;
+    final outlineBorderColor = isDark ? DarkColors.tealDeep : AppColors.primary;
+
     // 1. Incoming Pending: Decline + Accept
     if (status == RequestStatus.pending && isIncoming) {
       return Row(
@@ -193,8 +218,8 @@ class RequestCardWidget extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onDecline,
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.accent,
-                side: const BorderSide(color: AppColors.accent),
+                foregroundColor: accentBtnColor,
+                side: BorderSide(color: accentBtnColor),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -210,8 +235,8 @@ class RequestCardWidget extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onAccept ?? onPrimaryAction,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
+                backgroundColor: primaryBtnBg,
+                foregroundColor: primaryBtnText,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 minimumSize: Size.zero,
@@ -236,8 +261,8 @@ class RequestCardWidget extends StatelessWidget {
           icon: const Icon(Icons.chat_bubble_outline, size: 16),
           label: const Text('Message', style: TextStyle(fontSize: 13)),
           style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.primary,
-            side: const BorderSide(color: AppColors.primary),
+            foregroundColor: primaryBtnBg,
+            side: BorderSide(color: outlineBorderColor),
             padding: const EdgeInsets.symmetric(vertical: 10),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -259,8 +284,8 @@ class RequestCardWidget extends StatelessWidget {
               icon: const Icon(Icons.chat_bubble_outline, size: 16),
               label: const Text('Message', style: TextStyle(fontSize: 13)),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
+                foregroundColor: primaryBtnBg,
+                side: BorderSide(color: outlineBorderColor),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -277,8 +302,8 @@ class RequestCardWidget extends StatelessWidget {
               icon: const Icon(Icons.check_circle_outline, size: 16),
               label: const Text('Complete', style: TextStyle(fontSize: 13)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
+                backgroundColor: primaryBtnBg,
+                foregroundColor: primaryBtnText,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 minimumSize: Size.zero,
@@ -289,6 +314,28 @@ class RequestCardWidget extends StatelessWidget {
               ),
             ),
           ),
+          if (onUndoAccept != null || onDecline != null)
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, size: 20, color: isDark ? DarkColors.stone : AppColors.textSecondary),
+              tooltip: 'More options',
+              onSelected: (val) {
+                if (val == 'undo') {
+                  (onUndoAccept ?? onDecline)?.call();
+                }
+              },
+              itemBuilder: (ctx) => [
+                PopupMenuItem(
+                  value: 'undo',
+                  child: Row(
+                    children: [
+                      Icon(Icons.undo_rounded, size: 18, color: accentBtnColor),
+                      const SizedBox(width: 8),
+                      Text('Undo Accept', style: TextStyle(color: accentBtnColor, fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
         ],
       );
     }
@@ -302,8 +349,8 @@ class RequestCardWidget extends StatelessWidget {
             icon: const Icon(Icons.chat_bubble_outline, size: 16),
             label: const Text('Message', style: TextStyle(fontSize: 13)),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
+              foregroundColor: primaryBtnBg,
+              side: BorderSide(color: outlineBorderColor),
               padding: const EdgeInsets.symmetric(vertical: 10),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -321,7 +368,7 @@ class RequestCardWidget extends StatelessWidget {
             label: const Text('Rate Swap', style: TextStyle(fontSize: 13)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.warning,
-              foregroundColor: AppColors.textPrimary,
+              foregroundColor: Colors.black,
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 10),
               minimumSize: Size.zero,
@@ -345,26 +392,27 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final (label, color, background) = switch (status) {
       RequestStatus.pending => (
         'PENDING',
-        AppColors.accent,
-        AppColors.softCoral,
+        isDark ? DarkColors.coral : AppColors.accent,
+        isDark ? const Color(0xFF3B2620) : AppColors.softCoral,
       ),
       RequestStatus.accepted => (
         'ACCEPTED',
-        AppColors.success,
-        AppColors.softTeal,
+        isDark ? DarkColors.teal : AppColors.success,
+        isDark ? const Color(0xFF1D3B34) : AppColors.softTeal,
       ),
       RequestStatus.completed => (
         'COMPLETED',
-        AppColors.primary,
-        AppColors.softTeal,
+        isDark ? DarkColors.teal : AppColors.primary,
+        isDark ? const Color(0xFF1D3B34) : AppColors.softTeal,
       ),
       RequestStatus.declined => (
         'DECLINED',
-        AppColors.accent,
-        AppColors.softCoral,
+        isDark ? DarkColors.coral : AppColors.accent,
+        isDark ? const Color(0xFF3B2620) : AppColors.softCoral,
       ),
     };
 

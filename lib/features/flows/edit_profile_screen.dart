@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../app/providers.dart';
 import '../../design_system/app_theme.dart';
@@ -117,37 +120,77 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(AppSpace.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Select Profile Theme Avatar', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: AppSpace.xs),
-            const Text('Upload photo to Supabase Storage or select a neighbourhood badge:'),
-            const SizedBox(height: AppSpace.md),
-            ...avatars.map(
-              (avatar) => ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: AppColors.softGold,
-                  child: Text(avatar.substring(0, 2), style: const TextStyle(fontSize: 18)),
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpace.lg,
+            AppSpace.lg,
+            AppSpace.lg,
+            AppSpace.lg + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: AppSpace.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                title: Text(avatar.substring(3)),
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  setState(() => _selectedAvatarUrl = avatar);
+              ),
+              Text('Select Profile Theme Avatar', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: AppSpace.xs),
+              const Text('Upload photo to Supabase Storage or select a neighbourhood badge:'),
+              const SizedBox(height: AppSpace.md),
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.primary,
+                  child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 20),
+                ),
+                title: const Text('Choose Photo from Gallery', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                subtitle: const Text('Pick a profile photo directly from your device gallery'),
+                onTap: () async {
+                  final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('📷 Avatar preset "$avatar" selected & synced to Supabase Storage!')),
-                  );
+                  final picker = ImagePicker();
+                  final image = await picker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    setState(() => _selectedAvatarUrl = image.path);
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('📷 Profile photo selected from gallery!')),
+                    );
+                  }
                 },
               ),
-            ),
-          ],
+              const Divider(),
+              ...avatars.map(
+                (avatar) => ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.softGold,
+                    child: Text(avatar.substring(0, 2), style: const TextStyle(fontSize: 18)),
+                  ),
+                  title: Text(avatar.substring(3)),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() => _selectedAvatarUrl = avatar);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('📷 Avatar preset "$avatar" selected & synced to Supabase Storage!')),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -165,11 +208,51 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final currentProfile = ref.watch(myProfileProvider).value ?? ref.read(repositoryProvider).myProfile;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    Widget buildAvatarImage() {
+      if (_selectedAvatarUrl != null && _selectedAvatarUrl!.isNotEmpty) {
+        if (_selectedAvatarUrl!.startsWith('http')) {
+          return CircleAvatar(
+            radius: 44,
+            backgroundColor: isDark ? DarkColors.surface2 : AppColors.softGold,
+            backgroundImage: NetworkImage(_selectedAvatarUrl!),
+          );
+        } else {
+          try {
+            final file = File(_selectedAvatarUrl!);
+            if (file.existsSync()) {
+              return CircleAvatar(
+                radius: 44,
+                backgroundColor: isDark ? DarkColors.surface2 : AppColors.softGold,
+                backgroundImage: FileImage(file),
+              );
+            }
+          } catch (_) {}
+        }
+      }
+      return CircleAvatar(
+        radius: 44,
+        backgroundColor: isDark ? DarkColors.surface2 : AppColors.softGold,
+        child: Text(
+          _selectedAvatarUrl != null && _selectedAvatarUrl!.length >= 2
+              ? _selectedAvatarUrl!.substring(0, 2)
+              : currentProfile.initials,
+          style: TextStyle(
+            color: isDark ? DarkColors.teal : AppColors.primary,
+            fontWeight: FontWeight.w800,
+            fontSize: 26,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: AppColors.background,
+        backgroundColor: theme.scaffoldBackgroundColor,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
       body: SafeArea(
@@ -182,29 +265,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 44,
-                      backgroundColor: AppColors.softGold,
-                      child: Text(
-                        _selectedAvatarUrl != null && _selectedAvatarUrl!.length >= 2
-                            ? _selectedAvatarUrl!.substring(0, 2)
-                            : currentProfile.initials,
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 26,
-                        ),
-                      ),
-                    ),
+                    buildAvatarImage(),
                     Positioned(
                       bottom: 0,
                       right: 0,
                       child: CircleAvatar(
                         radius: 16,
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: isDark ? DarkColors.teal : AppColors.primary,
                         child: IconButton(
                           padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                          icon: Icon(
+                            Icons.camera_alt,
+                            size: 16,
+                            color: isDark ? const Color(0xFF0B1B17) : Colors.white,
+                          ),
                           onPressed: _showAvatarPicker,
                         ),
                       ),
@@ -265,19 +339,40 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               // Skills Offered Section
               Text('Skills You Offer / Teach', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: AppSpace.xs),
-              Wrap(
-                spacing: AppSpace.xs,
-                runSpacing: AppSpace.xs,
-                children: _offered
-                    .map(
-                      (skill) => SkillChip(
-                        label: skill,
-                        selected: true,
-                        onDeleted: () => setState(() => _offered.remove(skill)),
+              if (_offered.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/illustrations/empty/empty_skills.png',
+                        height: 70,
+                        fit: BoxFit.contain,
                       ),
-                    )
-                    .toList(),
-              ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'No offered skills added yet. Add a skill to let neighbours know what you can teach!',
+                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: AppSpace.xs,
+                  runSpacing: AppSpace.xs,
+                  children: _offered
+                      .map(
+                        (skill) => SkillChip(
+                          label: skill,
+                          selected: true,
+                          onDeleted: () => setState(() => _offered.remove(skill)),
+                        ),
+                      )
+                      .toList(),
+                ),
               const SizedBox(height: AppSpace.xs),
               Row(
                 children: [

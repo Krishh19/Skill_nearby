@@ -136,6 +136,36 @@ class SupabaseRealtimeService {
   SupabaseRealtimeService(this.client);
   final SupabaseClient client;
 
+  /// Subscribes to real-time Postgres changes for swap requests via WebSocket
+  RealtimeChannel subscribeToSwaps(
+    void Function(PostgresChangePayload) onChange,
+  ) {
+    return client
+        .channel('public:swaps')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'swaps',
+          callback: onChange,
+        )
+        .subscribe();
+  }
+
+  /// Subscribes to real-time Postgres changes for live chat messages via WebSocket
+  RealtimeChannel subscribeToMessages(
+    void Function(PostgresChangePayload) onChange,
+  ) {
+    return client
+        .channel('public:messages')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'messages',
+          callback: onChange,
+        )
+        .subscribe();
+  }
+
   RealtimeChannel subscribeToUser(
     String userId,
     void Function(PostgresChangePayload) onChange,

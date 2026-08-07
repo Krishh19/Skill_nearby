@@ -102,6 +102,37 @@ class NotificationService {
       payload: '/chat/$profileId',
     );
   }
+
+  Future<void> showSwapAcceptedNotification({
+    required String neighbourName,
+    required String skillOffered,
+    required String requestId,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      channelIdSwaps,
+      channelNameSwaps,
+      channelDescription: 'Alerts when a neighbour accepts your skill swap request',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    await _plugin.show(
+      requestId.hashCode.abs(),
+      '🎉 Swap Request Accepted!',
+      '$neighbourName accepted your swap for $skillOffered. Tap to chat!',
+      details,
+      payload: '/requests',
+    );
+  }
 }
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {

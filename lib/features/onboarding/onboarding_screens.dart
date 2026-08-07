@@ -17,10 +17,19 @@ class WelcomeScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: AppSpace.md),
-            const Icon(
-              Icons.volunteer_activism,
-              color: AppColors.accent,
-              size: 52,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'assets/skill_swap.png',
+                height: 64,
+                width: 64,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.volunteer_activism,
+                  color: AppColors.accent,
+                  size: 52,
+                ),
+              ),
             ),
             const SizedBox(height: AppSpace.sm),
             Text(
@@ -144,7 +153,7 @@ class CreateProfileScreen extends StatefulWidget {
 }
 
 class _CreateProfileScreenState extends State<CreateProfileScreen> {
-  final _name = TextEditingController(text: 'Aanya Sharma');
+  final _name = TextEditingController(text: 'Krish P');
   final _bio = TextEditingController(
     text: 'Graphic designer who loves teaching and photography 📸',
   );

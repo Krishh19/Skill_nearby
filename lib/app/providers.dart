@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories.dart';
@@ -27,3 +28,30 @@ final preferencesProvider = StreamProvider<AppPreferences>(
 final myProfileProvider = StreamProvider<SkillProfile>(
   (ref) => ref.watch(repositoryProvider).watchMyProfile(),
 );
+
+class DebugForceEmptyStatesNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+  void set(bool val) => state = val;
+}
+
+final debugForceEmptyStatesProvider =
+    NotifierProvider<DebugForceEmptyStatesNotifier, bool>(
+  DebugForceEmptyStatesNotifier.new,
+);
+
+class AppThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.light;
+
+  void setThemeMode(ThemeMode mode) => state = mode;
+  void toggleDark() => state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+}
+
+final appThemeModeProvider =
+    NotifierProvider<AppThemeModeNotifier, ThemeMode>(
+  AppThemeModeNotifier.new,
+);
+
