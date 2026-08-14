@@ -33,12 +33,32 @@ abstract final class AppRadii {
 
 abstract final class AppShadows {
   static const card = [
-    BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 4), spreadRadius: 0),
-    BoxShadow(color: Color(0x080F766E), blurRadius: 20, offset: Offset(0, 8), spreadRadius: -2),
+    BoxShadow(
+      color: Color(0x0C000000),
+      blurRadius: 10,
+      offset: Offset(0, 4),
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x080F766E),
+      blurRadius: 20,
+      offset: Offset(0, 8),
+      spreadRadius: -2,
+    ),
   ];
   static const elevated = [
-    BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, 6), spreadRadius: 0),
-    BoxShadow(color: Color(0x100F766E), blurRadius: 28, offset: Offset(0, 12), spreadRadius: -2),
+    BoxShadow(
+      color: Color(0x14000000),
+      blurRadius: 16,
+      offset: Offset(0, 6),
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x100F766E),
+      blurRadius: 28,
+      offset: Offset(0, 12),
+      spreadRadius: -2,
+    ),
   ];
 }
 
@@ -60,10 +80,7 @@ ThemeData appTheme() => ThemeData(
     surfaceTintColor: Colors.transparent,
     elevation: 0,
   ),
-  cardTheme: const CardThemeData(
-    color: AppColors.surface,
-    elevation: 0,
-  ),
+  cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
   bottomSheetTheme: const BottomSheetThemeData(
     backgroundColor: AppColors.surface,
     surfaceTintColor: Colors.transparent,
@@ -72,9 +89,7 @@ ThemeData appTheme() => ThemeData(
     backgroundColor: AppColors.surface,
     surfaceTintColor: Colors.transparent,
   ),
-  dividerTheme: const DividerThemeData(
-    color: AppColors.border,
-  ),
+  dividerTheme: const DividerThemeData(color: AppColors.border),
   textTheme: const TextTheme(
     headlineLarge: TextStyle(
       fontSize: 28,
@@ -126,10 +141,7 @@ ThemeData appTheme() => ThemeData(
       borderSide: BorderSide(color: AppColors.primary, width: 1.5),
     ),
     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    hintStyle: TextStyle(
-      fontSize: 14,
-      color: AppColors.textSecondary,
-    ),
+    hintStyle: TextStyle(fontSize: 14, color: AppColors.textSecondary),
   ),
 );
 
@@ -164,10 +176,7 @@ ThemeData appDarkTheme() => ThemeData(
     surfaceTintColor: Colors.transparent,
     elevation: 0,
   ),
-  cardTheme: const CardThemeData(
-    color: DarkColors.surface,
-    elevation: 0,
-  ),
+  cardTheme: const CardThemeData(color: DarkColors.surface, elevation: 0),
   bottomSheetTheme: const BottomSheetThemeData(
     backgroundColor: DarkColors.surface,
     surfaceTintColor: Colors.transparent,
@@ -176,9 +185,7 @@ ThemeData appDarkTheme() => ThemeData(
     backgroundColor: DarkColors.surface,
     surfaceTintColor: Colors.transparent,
   ),
-  dividerTheme: const DividerThemeData(
-    color: DarkColors.line,
-  ),
+  dividerTheme: const DividerThemeData(color: DarkColors.line),
   textTheme: const TextTheme(
     headlineLarge: TextStyle(
       fontSize: 28,
@@ -198,21 +205,9 @@ ThemeData appDarkTheme() => ThemeData(
       fontWeight: FontWeight.w700,
       color: DarkColors.ink,
     ),
-    bodyLarge: TextStyle(
-      fontSize: 16,
-      height: 1.5,
-      color: DarkColors.ink,
-    ),
-    bodyMedium: TextStyle(
-      fontSize: 14,
-      height: 1.43,
-      color: DarkColors.stone,
-    ),
-    labelSmall: TextStyle(
-      fontSize: 12,
-      height: 1.33,
-      color: DarkColors.stone,
-    ),
+    bodyLarge: TextStyle(fontSize: 16, height: 1.5, color: DarkColors.ink),
+    bodyMedium: TextStyle(fontSize: 14, height: 1.43, color: DarkColors.stone),
+    labelSmall: TextStyle(fontSize: 12, height: 1.33, color: DarkColors.stone),
   ),
   inputDecorationTheme: const InputDecorationTheme(
     filled: true,
@@ -230,9 +225,6 @@ ThemeData appDarkTheme() => ThemeData(
       borderSide: BorderSide(color: DarkColors.teal, width: 1.5),
     ),
     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    hintStyle: TextStyle(
-      fontSize: 14,
-      color: DarkColors.stone,
-    ),
+    hintStyle: TextStyle(fontSize: 14, color: DarkColors.stone),
   ),
 );

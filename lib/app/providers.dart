@@ -39,19 +39,18 @@ class DebugForceEmptyStatesNotifier extends Notifier<bool> {
 
 final debugForceEmptyStatesProvider =
     NotifierProvider<DebugForceEmptyStatesNotifier, bool>(
-  DebugForceEmptyStatesNotifier.new,
-);
+      DebugForceEmptyStatesNotifier.new,
+    );
 
 class AppThemeModeNotifier extends Notifier<ThemeMode> {
   @override
   ThemeMode build() => ThemeMode.light;
 
   void setThemeMode(ThemeMode mode) => state = mode;
-  void toggleDark() => state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+  void toggleDark() =>
+      state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
 }
 
-final appThemeModeProvider =
-    NotifierProvider<AppThemeModeNotifier, ThemeMode>(
+final appThemeModeProvider = NotifierProvider<AppThemeModeNotifier, ThemeMode>(
   AppThemeModeNotifier.new,
 );
-

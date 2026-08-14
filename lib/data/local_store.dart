@@ -152,7 +152,11 @@ class PreferencesStore {
     final avatarUrl = _box.get(_avatarUrlKey) as String?;
 
     final nameParts = name.trim().split(' ');
-    final initials = nameParts.map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+    final initials = nameParts
+        .map((e) => e.isNotEmpty ? e[0] : '')
+        .take(2)
+        .join()
+        .toUpperCase();
 
     return SkillProfile(
       id: 'me',
@@ -161,7 +165,9 @@ class PreferencesStore {
       distanceKm: 0.0,
       rating: 4.9,
       responseRate: 93,
-      offers: offers.isNotEmpty ? offers : ['Graphic Design', 'Branding', 'Canva'],
+      offers: offers.isNotEmpty
+          ? offers
+          : ['Graphic Design', 'Branding', 'Canva'],
       wants: wants.isNotEmpty ? wants : ['Guitar', 'Gardening'],
       bio: bio,
       isVerified: true,

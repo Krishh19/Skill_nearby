@@ -174,7 +174,9 @@ class RequestCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: onPrimaryAction,
                   icon: Icon(
-                    isCompleted ? Icons.star_border : Icons.check_circle_outline,
+                    isCompleted
+                        ? Icons.star_border
+                        : Icons.check_circle_outline,
                     size: 18,
                   ),
                   label: Text(isCompleted ? 'Rate' : 'Complete'),

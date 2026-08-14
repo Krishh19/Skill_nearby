@@ -65,7 +65,11 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.stars, color: AppColors.warning, size: 28),
+                      child: const Icon(
+                        Icons.stars,
+                        color: AppColors.warning,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: AppSpace.sm),
                     Expanded(
@@ -74,12 +78,19 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
                         children: const [
                           Text(
                             '+3 Skill Credits Earned!',
-                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppColors.textPrimary),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           SizedBox(height: 2),
                           Text(
                             'Your credits balance has been updated. You can spend credits on any skill!',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -110,7 +121,9 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
                       setState(() => _rating = starValue);
                     },
                     icon: Icon(
-                      isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                      isFilled
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
                       color: isFilled ? AppColors.warning : AppColors.border,
                     ),
                   );
@@ -119,13 +132,20 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
               Center(
                 child: Text(
                   '${_rating.toStringAsFixed(1)} Out of 5.0 Stars',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpace.lg),
 
               // Feedback Tags Selector
-              const Text('Highlight key qualities:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text(
+                'Highlight key qualities:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               const SizedBox(height: AppSpace.xs),
               Wrap(
                 spacing: AppSpace.xs,
@@ -163,7 +183,8 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
                 maxLines: 4,
                 decoration: const InputDecoration(
                   labelText: 'Leave a kind word (Optional)',
-                  hintText: 'Share a brief testimonial about your experience to help foster neighbourhood trust…',
+                  hintText:
+                      'Share a brief testimonial about your experience to help foster neighbourhood trust…',
                 ),
               ),
               const SizedBox(height: AppSpace.xl),
@@ -173,7 +194,9 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
                 label: 'Submit Review & Claim Credits',
                 onPressed: () async {
                   HapticFeedback.mediumImpact();
-                  await ref.read(repositoryProvider).submitSwapRating(
+                  await ref
+                      .read(repositoryProvider)
+                      .submitSwapRating(
                         requestId: widget.requestId,
                         rating: _rating,
                         comment: _commentController.text.trim(),
@@ -181,7 +204,11 @@ class _RatingReviewScreenState extends ConsumerState<RatingReviewScreen> {
                       );
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('🎉 Review submitted! +3 Skill Credits added.')),
+                      const SnackBar(
+                        content: Text(
+                          '🎉 Review submitted! +3 Skill Credits added.',
+                        ),
+                      ),
                     );
                     context.go('/nearby');
                   }

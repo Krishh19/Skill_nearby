@@ -3,7 +3,13 @@
 
 enum RequestStatus { pending, accepted, completed, declined }
 
-enum OperationKind { requestSwap, sendMessage, completeSwap, submitRating, updateProfile }
+enum OperationKind {
+  requestSwap,
+  sendMessage,
+  completeSwap,
+  submitRating,
+  updateProfile,
+}
 
 enum OperationState { pending, syncing, failed }
 
@@ -50,21 +56,20 @@ class SkillProfile {
     bool? isVerified,
     bool? hasVideo,
     String? avatarUrl,
-  }) =>
-      SkillProfile(
-        id: id,
-        name: name ?? this.name,
-        initials: initials ?? this.initials,
-        distanceKm: distanceKm ?? this.distanceKm,
-        rating: rating ?? this.rating,
-        responseRate: responseRate ?? this.responseRate,
-        offers: offers ?? this.offers,
-        wants: wants ?? this.wants,
-        bio: bio ?? this.bio,
-        isVerified: isVerified ?? this.isVerified,
-        hasVideo: hasVideo ?? this.hasVideo,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-      );
+  }) => SkillProfile(
+    id: id,
+    name: name ?? this.name,
+    initials: initials ?? this.initials,
+    distanceKm: distanceKm ?? this.distanceKm,
+    rating: rating ?? this.rating,
+    responseRate: responseRate ?? this.responseRate,
+    offers: offers ?? this.offers,
+    wants: wants ?? this.wants,
+    bio: bio ?? this.bio,
+    isVerified: isVerified ?? this.isVerified,
+    hasVideo: hasVideo ?? this.hasVideo,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+  );
 }
 
 class SwapRequest {
@@ -134,10 +139,7 @@ class ChatMessage {
 
   bool get isProposal => proposalLocation != null;
 
-  ChatMessage copyWith({
-    bool? isPendingSync,
-    String? proposalStatus,
-  }) =>
+  ChatMessage copyWith({bool? isPendingSync, String? proposalStatus}) =>
       ChatMessage(
         id: id,
         profileId: profileId,

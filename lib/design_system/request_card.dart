@@ -57,9 +57,10 @@ class RequestCardWidget extends StatelessWidget {
   String get _timelineText {
     final ago = _timeAgo(requestedAt);
     return switch (status) {
-      RequestStatus.pending => isIncoming
-          ? '$ago · Needs your response'
-          : '$ago · Awaiting neighbour response',
+      RequestStatus.pending =>
+        isIncoming
+            ? '$ago · Needs your response'
+            : '$ago · Awaiting neighbour response',
       RequestStatus.accepted => '$ago · Swap in progress',
       RequestStatus.completed => '$ago · Completed',
       RequestStatus.declined => '$ago · Declined',
@@ -73,7 +74,9 @@ class RequestCardWidget extends StatelessWidget {
     final borderColor = isDark ? DarkColors.line : AppColors.border;
     final stripBg = isDark ? DarkColors.surface2 : AppColors.background;
     final primaryTextColor = isDark ? DarkColors.ink : AppColors.textPrimary;
-    final secondaryTextColor = isDark ? DarkColors.stone : AppColors.textSecondary;
+    final secondaryTextColor = isDark
+        ? DarkColors.stone
+        : AppColors.textSecondary;
     final tealColor = isDark ? DarkColors.teal : AppColors.primary;
 
     return Container(
@@ -101,7 +104,9 @@ class RequestCardWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: isDark ? DarkColors.surface2 : AppColors.softGold,
+                backgroundColor: isDark
+                    ? DarkColors.surface2
+                    : AppColors.softGold,
                 child: Text(
                   initials,
                   style: TextStyle(
@@ -138,10 +143,7 @@ class RequestCardWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              _StatusPill(
-                status: status,
-                pending: isPendingSync,
-              ),
+              _StatusPill(status: status, pending: isPendingSync),
             ],
           ),
           const SizedBox(height: AppSpace.sm),
@@ -227,7 +229,10 @@ class RequestCardWidget extends StatelessWidget {
                   borderRadius: AppRadii.input,
                 ),
               ),
-              child: const Text('Decline', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              child: const Text(
+                'Decline',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
             ),
           ),
           const SizedBox(width: AppSpace.xs),
@@ -245,7 +250,10 @@ class RequestCardWidget extends StatelessWidget {
                   borderRadius: AppRadii.input,
                 ),
               ),
-              child: const Text('Accept', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              child: const Text(
+                'Accept',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
             ),
           ),
         ],
@@ -266,9 +274,7 @@ class RequestCardWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 10),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: const RoundedRectangleBorder(
-              borderRadius: AppRadii.input,
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
           ),
         ),
       );
@@ -316,7 +322,11 @@ class RequestCardWidget extends StatelessWidget {
           ),
           if (onUndoAccept != null || onDecline != null)
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, size: 20, color: isDark ? DarkColors.stone : AppColors.textSecondary),
+              icon: Icon(
+                Icons.more_vert,
+                size: 20,
+                color: isDark ? DarkColors.stone : AppColors.textSecondary,
+              ),
               tooltip: 'More options',
               onSelected: (val) {
                 if (val == 'undo') {
@@ -330,7 +340,14 @@ class RequestCardWidget extends StatelessWidget {
                     children: [
                       Icon(Icons.undo_rounded, size: 18, color: accentBtnColor),
                       const SizedBox(width: 8),
-                      Text('Undo Accept', style: TextStyle(color: accentBtnColor, fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(
+                        'Undo Accept',
+                        style: TextStyle(
+                          color: accentBtnColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -354,9 +371,7 @@ class RequestCardWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 10),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppRadii.input,
-              ),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
             ),
           ),
         ),
@@ -373,9 +388,7 @@ class RequestCardWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 10),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppRadii.input,
-              ),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
             ),
           ),
         ),
@@ -418,10 +431,7 @@ class _StatusPill extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppRadii.pill,
-      ),
+      decoration: BoxDecoration(color: background, borderRadius: AppRadii.pill),
       child: Text(
         '${pending ? 'Queued · ' : ''}$label',
         style: TextStyle(

@@ -42,8 +42,12 @@ class AppButton extends StatelessWidget {
               label: Text(label),
               style: OutlinedButton.styleFrom(
                 foregroundColor: primaryColor,
-                side: BorderSide(color: isDark ? DarkColors.tealDeep : AppColors.primary),
-                shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+                side: BorderSide(
+                  color: isDark ? DarkColors.tealDeep : AppColors.primary,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
               ),
             )
           : ElevatedButton.icon(
@@ -53,7 +57,9 @@ class AppButton extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: primaryTextColor,
-                shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
               ),
             ),
     );
@@ -74,8 +80,11 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = color ?? (isDark ? DarkColors.surface : AppColors.surface);
-    final borderColor = isDark ? DarkColors.line : AppColors.border.withValues(alpha: 0.6);
+    final cardColor =
+        color ?? (isDark ? DarkColors.surface : AppColors.surface);
+    final borderColor = isDark
+        ? DarkColors.line
+        : AppColors.border.withValues(alpha: 0.6);
 
     return Container(
       padding: padding,
@@ -123,10 +132,7 @@ class SkillChip extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: AppRadii.pill,
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: AppRadii.pill),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -138,45 +144,45 @@ class SkillChip extends StatelessWidget {
               fontSize: 13,
             ),
           ),
-        if (level != null) ...[
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: level == 'Expert'
-                  ? AppColors.primary
-                  : level == 'Intermediate'
-                      ? AppColors.accent
-                      : AppColors.textSecondary.withOpacity(0.2),
-              borderRadius: AppRadii.pill,
-            ),
-            child: Text(
-              level!,
-              style: TextStyle(
-                color: level == 'Expert' || level == 'Intermediate'
-                    ? Colors.white
-                    : AppColors.textPrimary,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+          if (level != null) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: level == 'Expert'
+                    ? AppColors.primary
+                    : level == 'Intermediate'
+                    ? AppColors.accent
+                    : AppColors.textSecondary.withOpacity(0.2),
+                borderRadius: AppRadii.pill,
+              ),
+              child: Text(
+                level!,
+                style: TextStyle(
+                  color: level == 'Expert' || level == 'Intermediate'
+                      ? Colors.white
+                      : AppColors.textPrimary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-        ],
-        if (onDeleted != null) ...[
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onDeleted,
-            child: Icon(
-              Icons.close,
-              size: 14,
-              color: selected ? AppColors.surface : AppColors.primary,
+          ],
+          if (onDeleted != null) ...[
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: onDeleted,
+              child: Icon(
+                Icons.close,
+                size: 14,
+                color: selected ? AppColors.surface : AppColors.primary,
+              ),
             ),
-          ),
+          ],
         ],
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 }
 
 class OfflineBanner extends StatelessWidget {
@@ -284,9 +290,17 @@ class FriendlyEmptyState extends StatelessWidget {
         children: [
           _buildIllustration(),
           const SizedBox(height: AppSpace.md),
-          Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: AppSpace.xs),
-          Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, height: 1.4)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textSecondary, height: 1.4),
+          ),
           const SizedBox(height: AppSpace.lg),
           AppButton(label: actionLabel, onPressed: onAction),
         ],
@@ -341,7 +355,11 @@ class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
                   color: AppColors.softGold,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.star_rounded, color: AppColors.accent, size: 28),
+                child: const Icon(
+                  Icons.star_rounded,
+                  color: AppColors.accent,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: AppSpace.sm),
               Expanded(
@@ -350,22 +368,42 @@ class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
                   children: [
                     Text(
                       'SkillNearby Plus',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontSize: 22,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(color: AppColors.primary, fontSize: 22),
+                    ),
+                    const Text(
+                      'Unlock your full neighbourhood network',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
                       ),
                     ),
-                    const Text('Unlock your full neighbourhood network', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpace.md),
-          const _FeatureRow(icon: Icons.radar, title: '20 km Expanded Radius', subtitle: 'Search beyond 2 km to connect across your city'),
-          const _FeatureRow(icon: Icons.all_inclusive, title: 'Unlimited Swaps & Standing Offers', subtitle: 'Post 24/7 offers and swap as often as you like'),
-          const _FeatureRow(icon: Icons.savings_outlined, title: 'Skill Credits Banking', subtitle: 'Bank credits when teaching, spend on any skill later'),
-          const _FeatureRow(icon: Icons.verified_user_outlined, title: 'Priority ID Verification', subtitle: 'Get a trusted neighbourhood badge on your profile'),
+          const _FeatureRow(
+            icon: Icons.radar,
+            title: '20 km Expanded Radius',
+            subtitle: 'Search beyond 2 km to connect across your city',
+          ),
+          const _FeatureRow(
+            icon: Icons.all_inclusive,
+            title: 'Unlimited Swaps & Standing Offers',
+            subtitle: 'Post 24/7 offers and swap as often as you like',
+          ),
+          const _FeatureRow(
+            icon: Icons.savings_outlined,
+            title: 'Skill Credits Banking',
+            subtitle: 'Bank credits when teaching, spend on any skill later',
+          ),
+          const _FeatureRow(
+            icon: Icons.verified_user_outlined,
+            title: 'Priority ID Verification',
+            subtitle: 'Get a trusted neighbourhood badge on your profile',
+          ),
           const SizedBox(height: AppSpace.lg),
           Container(
             padding: const EdgeInsets.all(AppSpace.sm),
@@ -379,11 +417,30 @@ class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Plus Membership', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    Text('Cancel anytime in store settings', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                    Text(
+                      'Plus Membership',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      'Cancel anytime in store settings',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
-                Text('\$4.99 / mo', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: AppColors.primary)),
+                Text(
+                  '\$4.99 / mo',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -391,7 +448,9 @@ class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
           AppButton(
             label: 'Start 7-Day Free Trial',
             onPressed: () async {
-              final success = await ref.read(revenueCatServiceProvider).purchaseTestPlus();
+              final success = await ref
+                  .read(revenueCatServiceProvider)
+                  .purchaseTestPlus();
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -409,7 +468,10 @@ class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
           const SizedBox(height: AppSpace.xs),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Continue with Free Tier (2 km limit)', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Continue with Free Tier (2 km limit)',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
         ],
       ),
@@ -418,7 +480,11 @@ class SkillNearbyPlusPaywallSheet extends ConsumerWidget {
 }
 
 class _FeatureRow extends StatelessWidget {
-  const _FeatureRow({required this.icon, required this.title, required this.subtitle});
+  const _FeatureRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
   final IconData icon;
   final String title;
   final String subtitle;
@@ -435,8 +501,20 @@ class _FeatureRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),

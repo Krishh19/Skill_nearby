@@ -11,7 +11,6 @@ import '../../app/providers.dart';
 import '../../design_system/app_theme.dart';
 import '../../design_system/components.dart';
 
-
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -46,7 +45,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
-      final profile = ref.watch(myProfileProvider).value ?? ref.read(repositoryProvider).myProfile;
+      final profile =
+          ref.watch(myProfileProvider).value ??
+          ref.read(repositoryProvider).myProfile;
       _nameController.text = profile.name;
       _bioController.text = profile.bio;
       _offered = List.from(profile.offers);
@@ -72,7 +73,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
         final pos = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
           timeLimit: const Duration(seconds: 8),
@@ -80,11 +82,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         setState(() {
           _currentLat = pos.latitude;
           _currentLng = pos.longitude;
-          _locationStatus = 'Updated GPS: ${pos.latitude.toStringAsFixed(4)}°, ${pos.longitude.toStringAsFixed(4)}° (Synced with Supabase PostGIS)';
+          _locationStatus =
+              'Updated GPS: ${pos.latitude.toStringAsFixed(4)}°, ${pos.longitude.toStringAsFixed(4)}° (Synced with Supabase PostGIS)';
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('📍 GPS location refreshed and ready to sync with PostGIS!')),
+            const SnackBar(
+              content: Text(
+                '📍 GPS location refreshed and ready to sync with PostGIS!',
+              ),
+            ),
           );
         }
       } else {
@@ -95,11 +102,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       setState(() {
         _currentLat = 12.9716;
         _currentLng = 77.5946;
-        _locationStatus = 'Simulated GPS: 12.9716° N, 77.5946° E (PostGIS Synced)';
+        _locationStatus =
+            'Simulated GPS: 12.9716° N, 77.5946° E (PostGIS Synced)';
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('📍 Coordinates set (12.9716° N, 77.5946° E)')),
+          const SnackBar(
+            content: Text('📍 Coordinates set (12.9716° N, 77.5946° E)'),
+          ),
         );
       }
     } finally {
@@ -147,26 +157,49 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                 ),
               ),
-              Text('Select Profile Theme Avatar', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Select Profile Theme Avatar',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpace.xs),
-              const Text('Upload photo to Supabase Storage or select a neighbourhood badge:'),
+              const Text(
+                'Upload photo to Supabase Storage or select a neighbourhood badge:',
+              ),
               const SizedBox(height: AppSpace.md),
               ListTile(
                 leading: const CircleAvatar(
                   backgroundColor: AppColors.primary,
-                  child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 20),
+                  child: Icon(
+                    Icons.photo_library_outlined,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
-                title: const Text('Choose Photo from Gallery', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
-                subtitle: const Text('Pick a profile photo directly from your device gallery'),
+                title: const Text(
+                  'Choose Photo from Gallery',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Pick a profile photo directly from your device gallery',
+                ),
                 onTap: () async {
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(context);
                   final picker = ImagePicker();
-                  final image = await picker.pickImage(source: ImageSource.gallery);
+                  final image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
                   if (image != null) {
                     setState(() => _selectedAvatarUrl = image.path);
                     messenger.showSnackBar(
-                      const SnackBar(content: Text('📷 Profile photo selected from gallery!')),
+                      const SnackBar(
+                        content: Text(
+                          '📷 Profile photo selected from gallery!',
+                        ),
+                      ),
                     );
                   }
                 },
@@ -176,7 +209,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 (avatar) => ListTile(
                   leading: CircleAvatar(
                     backgroundColor: AppColors.softGold,
-                    child: Text(avatar.substring(0, 2), style: const TextStyle(fontSize: 18)),
+                    child: Text(
+                      avatar.substring(0, 2),
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   ),
                   title: Text(avatar.substring(3)),
                   onTap: () {
@@ -184,7 +220,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     setState(() => _selectedAvatarUrl = avatar);
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('📷 Avatar preset "$avatar" selected & synced to Supabase Storage!')),
+                      SnackBar(
+                        content: Text(
+                          '📷 Avatar preset "$avatar" selected & synced to Supabase Storage!',
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -207,7 +247,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentProfile = ref.watch(myProfileProvider).value ?? ref.read(repositoryProvider).myProfile;
+    final currentProfile =
+        ref.watch(myProfileProvider).value ??
+        ref.read(repositoryProvider).myProfile;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -225,7 +267,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             if (file.existsSync()) {
               return CircleAvatar(
                 radius: 44,
-                backgroundColor: isDark ? DarkColors.surface2 : AppColors.softGold,
+                backgroundColor: isDark
+                    ? DarkColors.surface2
+                    : AppColors.softGold,
                 backgroundImage: FileImage(file),
               );
             }
@@ -271,13 +315,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       right: 0,
                       child: CircleAvatar(
                         radius: 16,
-                        backgroundColor: isDark ? DarkColors.teal : AppColors.primary,
+                        backgroundColor: isDark
+                            ? DarkColors.teal
+                            : AppColors.primary,
                         child: IconButton(
                           padding: EdgeInsets.zero,
                           icon: Icon(
                             Icons.camera_alt,
                             size: 16,
-                            color: isDark ? const Color(0xFF0B1B17) : Colors.white,
+                            color: isDark
+                                ? const Color(0xFF0B1B17)
+                                : Colors.white,
                           ),
                           onPressed: _showAvatarPicker,
                         ),
@@ -293,7 +341,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Display Name',
-                  prefixIcon: Icon(Icons.person_outline, color: AppColors.primary),
+                  prefixIcon: Icon(
+                    Icons.person_outline,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpace.sm),
@@ -313,21 +364,41 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               AppCard(
                 child: Row(
                   children: [
-                    const Icon(Icons.my_location, color: AppColors.primary, size: 24),
+                    const Icon(
+                      Icons.my_location,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
                     const SizedBox(width: AppSpace.sm),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('GPS Location (Supabase PostGIS)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text(_locationStatus, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          const Text(
+                            'GPS Location (Supabase PostGIS)',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            _locationStatus,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     IconButton(
                       onPressed: _isLocating ? null : _refreshGPSLocation,
                       icon: _isLocating
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : const Icon(Icons.refresh, color: AppColors.primary),
                       tooltip: 'Refresh GPS Coordinates',
                     ),
@@ -337,7 +408,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               const SizedBox(height: AppSpace.lg),
 
               // Skills Offered Section
-              Text('Skills You Offer / Teach', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Skills You Offer / Teach',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpace.xs),
               if (_offered.isEmpty)
                 Padding(
@@ -353,7 +427,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       const Expanded(
                         child: Text(
                           'No offered skills added yet. Add a skill to let neighbours know what you can teach!',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ),
                     ],
@@ -368,7 +445,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         (skill) => SkillChip(
                           label: skill,
                           selected: true,
-                          onDeleted: () => setState(() => _offered.remove(skill)),
+                          onDeleted: () =>
+                              setState(() => _offered.remove(skill)),
                         ),
                       )
                       .toList(),
@@ -399,7 +477,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               const SizedBox(height: AppSpace.lg),
 
               // Skills Wanted Section
-              Text('Skills You Want to Learn', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Skills You Want to Learn',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpace.xs),
               Wrap(
                 spacing: AppSpace.xs,
@@ -443,7 +524,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 label: 'Save & Sync with Supabase',
                 onPressed: () async {
                   HapticFeedback.mediumImpact();
-                  await ref.read(repositoryProvider).updateUserProfile(
+                  await ref
+                      .read(repositoryProvider)
+                      .updateUserProfile(
                         name: _nameController.text.trim(),
                         bio: _bioController.text.trim(),
                         offers: _offered,
@@ -454,7 +537,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       );
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('🎉 Profile & GPS synced with Supabase successfully!')),
+                      const SnackBar(
+                        content: Text(
+                          '🎉 Profile & GPS synced with Supabase successfully!',
+                        ),
+                      ),
                     );
                     context.pop();
                   }

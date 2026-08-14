@@ -41,7 +41,11 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
     _chipKeys = List.generate(categories.length, (_) => GlobalKey());
   }
 
-  void _showRadiusSelector(BuildContext context, WidgetRef ref, int currentRadius) {
+  void _showRadiusSelector(
+    BuildContext context,
+    WidgetRef ref,
+    int currentRadius,
+  ) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
@@ -63,7 +67,11 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.near_me_outlined, color: AppColors.primary, size: 26),
+                  const Icon(
+                    Icons.near_me_outlined,
+                    color: AppColors.primary,
+                    size: 26,
+                  ),
                   const SizedBox(width: AppSpace.sm),
                   Text(
                     'Search Radius',
@@ -72,15 +80,21 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                 ],
               ),
               const SizedBox(height: AppSpace.xs),
-              const Text('Choose how far you are willing to travel for a skill swap:'),
+              const Text(
+                'Choose how far you are willing to travel for a skill swap:',
+              ),
               const SizedBox(height: AppSpace.md),
               ...[1, 2, 5, 10].map((radius) {
                 final isSelected = radius == currentRadius;
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
-                    isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                    isSelected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                   ),
                   title: Row(
                     children: [
@@ -88,18 +102,32 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                       if (radius > 2) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: const BoxDecoration(
                             color: AppColors.softCoral,
                             borderRadius: AppRadii.pill,
                           ),
-                          child: const Text('PLUS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.accent)),
+                          child: const Text(
+                            'PLUS',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.accent,
+                            ),
+                          ),
                         ),
                       ],
                     ],
                   ),
                   subtitle: Text(
-                    radius == 1 ? 'Walking distance (~12 mins)' : radius == 2 ? 'Short cycle (~8 mins)' : 'Short drive (SkillNearby Plus required)',
+                    radius == 1
+                        ? 'Walking distance (~12 mins)'
+                        : radius == 2
+                        ? 'Short cycle (~8 mins)'
+                        : 'Short drive (SkillNearby Plus required)',
                   ),
                   onTap: () async {
                     HapticFeedback.lightImpact();
@@ -144,7 +172,11 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.arrow_drop_down, color: AppColors.primary, size: 20),
+              const Icon(
+                Icons.arrow_drop_down,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -171,11 +203,27 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
             final cat = selectedCategory.toLowerCase();
             return profile.offers.any((offer) {
               final lower = offer.toLowerCase();
-              if (cat == 'music') return lower.contains('guitar') || lower.contains('music') || lower.contains('ukulele');
-              if (cat == 'design') return lower.contains('video') || lower.contains('editing') || lower.contains('adobe') || lower.contains('sketch');
-              if (cat == 'wellness') return lower.contains('yoga') || lower.contains('meditation') || lower.contains('wellness');
-              if (cat == 'cooking') return lower.contains('baking') || lower.contains('cooking') || lower.contains('meal');
-              if (cat == 'fixes') return lower.contains('repair') || lower.contains('furniture') || lower.contains('tool');
+              if (cat == 'music')
+                return lower.contains('guitar') ||
+                    lower.contains('music') ||
+                    lower.contains('ukulele');
+              if (cat == 'design')
+                return lower.contains('video') ||
+                    lower.contains('editing') ||
+                    lower.contains('adobe') ||
+                    lower.contains('sketch');
+              if (cat == 'wellness')
+                return lower.contains('yoga') ||
+                    lower.contains('meditation') ||
+                    lower.contains('wellness');
+              if (cat == 'cooking')
+                return lower.contains('baking') ||
+                    lower.contains('cooking') ||
+                    lower.contains('meal');
+              if (cat == 'fixes')
+                return lower.contains('repair') ||
+                    lower.contains('furniture') ||
+                    lower.contains('tool');
               return true;
             });
           }).toList();
@@ -198,9 +246,15 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: AppRadii.pill,
-                    borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                    borderSide: BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpace.sm),
@@ -211,11 +265,13 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: categories.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: AppSpace.xs),
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: AppSpace.xs),
                   itemBuilder: (_, index) {
                     final cat = categories[index];
                     final isSelected = selectedCategory == cat;
-                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
                     final chipBg = isSelected
                         ? (isDark ? DarkColors.teal : AppColors.primary)
                         : (isDark ? DarkColors.surface : AppColors.surface);
@@ -231,7 +287,9 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                       child: ChoiceChip(
                         label: Text(cat),
                         selected: isSelected,
-                        selectedColor: isDark ? DarkColors.teal : AppColors.primary,
+                        selectedColor: isDark
+                            ? DarkColors.teal
+                            : AppColors.primary,
                         backgroundColor: chipBg,
                         labelStyle: TextStyle(
                           color: chipText,
@@ -282,23 +340,24 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
               const SizedBox(height: AppSpace.md),
               if (showMap)
                 _NearbyMapCanvas(profiles: matches)
-              else if (matches.isEmpty || ref.watch(debugForceEmptyStatesProvider))
+              else if (matches.isEmpty ||
+                  ref.watch(debugForceEmptyStatesProvider))
                 FriendlyEmptyState(
                   imageAsset: query.isNotEmpty
                       ? 'assets/illustrations/empty/empty_search.png'
                       : (selectedCategory != 'All'
-                          ? 'assets/illustrations/empty/empty_radius.png'
-                          : 'assets/illustrations/empty/empty_nearby.png'),
+                            ? 'assets/illustrations/empty/empty_radius.png'
+                            : 'assets/illustrations/empty/empty_nearby.png'),
                   title: query.isNotEmpty
                       ? 'No matches for "$query"'
                       : (selectedCategory != 'All'
-                          ? 'No $selectedCategory skills nearby'
-                          : 'No neighbours nearby yet'),
+                            ? 'No $selectedCategory skills nearby'
+                            : 'No neighbours nearby yet'),
                   message: query.isNotEmpty
                       ? 'Try searching for a broader term like "Guitar", "Design", or "Baking".'
                       : (selectedCategory != 'All'
-                          ? 'Try expanding your distance radius or switching category filters.'
-                          : 'Be the first to share your skills in your saved area or invite local neighbours.'),
+                            ? 'Try expanding your distance radius or switching category filters.'
+                            : 'Be the first to share your skills in your saved area or invite local neighbours.'),
                   actionLabel: 'Reset filters',
                   onAction: () => setState(() {
                     query = '';
@@ -324,13 +383,19 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                       const SizedBox(height: AppSpace.xs),
                       const Text(
                         'Invite Local Neighbours',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Skill Nearby grows with your community. Invite friends & neighbours nearby to start swapping skills!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: AppSpace.md),
                       SizedBox(
@@ -339,7 +404,11 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
                           onPressed: () {
                             HapticFeedback.lightImpact();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('📲 Invite link copied to clipboard! Share with nearby friends.')),
+                              const SnackBar(
+                                content: Text(
+                                  '📲 Invite link copied to clipboard! Share with nearby friends.',
+                                ),
+                              ),
                             );
                           },
                           icon: const Icon(Icons.share_outlined, size: 16),
@@ -401,7 +470,10 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
               top: 12,
               left: 12,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: AppRadii.pill,
@@ -413,7 +485,11 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                     SizedBox(width: 4),
                     Text(
                       '📍 Indiranagar Neighbourhood Map',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ],
                 ),
@@ -430,7 +506,9 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                     icon: Icons.add,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      setState(() => zoomScale = (zoomScale + 0.15).clamp(0.8, 1.6));
+                      setState(
+                        () => zoomScale = (zoomScale + 0.15).clamp(0.8, 1.6),
+                      );
                     },
                   ),
                   const SizedBox(height: 6),
@@ -438,7 +516,9 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                     icon: Icons.remove,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      setState(() => zoomScale = (zoomScale - 0.15).clamp(0.8, 1.6));
+                      setState(
+                        () => zoomScale = (zoomScale - 0.15).clamp(0.8, 1.6),
+                      );
                     },
                   ),
                   const SizedBox(height: 6),
@@ -474,20 +554,29 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                       decoration: const BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.fromBorderSide(BorderSide(color: Colors.white, width: 2.5)),
+                        border: Border.fromBorderSide(
+                          BorderSide(color: Colors.white, width: 2.5),
+                        ),
                       ),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
                       'You',
-                      style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -514,15 +603,22 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                 child: GestureDetector(
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    setState(() => selectedProfile = isSelected ? null : profile);
+                    setState(
+                      () => selectedProfile = isSelected ? null : profile,
+                    );
                   },
                   child: Column(
                     children: [
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.accent : AppColors.primary,
+                          color: isSelected
+                              ? AppColors.accent
+                              : AppColors.primary,
                           borderRadius: AppRadii.pill,
                           border: Border.all(color: Colors.white, width: 1.5),
                           boxShadow: AppShadows.card,
@@ -544,20 +640,31 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              profile.offers.isNotEmpty ? profile.offers.first : profile.name,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                              profile.offers.isNotEmpty
+                                  ? profile.offers.first
+                                  : profile.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
                             ),
                             const SizedBox(width: 3),
                             Text(
                               '★${profile.rating}',
-                              style: const TextStyle(color: Colors.white70, fontSize: 9),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 9,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       Icon(
                         Icons.arrow_drop_down,
-                        color: isSelected ? AppColors.accent : AppColors.primary,
+                        color: isSelected
+                            ? AppColors.accent
+                            : AppColors.primary,
                         size: 20,
                       ),
                     ],
@@ -577,7 +684,9 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     borderRadius: AppRadii.card,
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                    ),
                     boxShadow: AppShadows.card,
                   ),
                   child: Row(
@@ -587,7 +696,10 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                         backgroundColor: AppColors.softGold,
                         child: Text(
                           selectedProfile!.initials,
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpace.sm),
@@ -596,22 +708,40 @@ class _NearbyMapCanvasState extends State<_NearbyMapCanvas> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(selectedProfile!.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            Text(
+                              selectedProfile!.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
                             Text(
                               '${selectedProfile!.distanceKm} km away • Teaches ${selectedProfile!.offers.first}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () => context.push('/request/${selectedProfile!.id}'),
+                        onPressed: () =>
+                            context.push('/request/${selectedProfile!.id}'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          shape: const RoundedRectangleBorder(borderRadius: AppRadii.pill),
-                          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: AppRadii.pill,
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         child: const Text('Swap'),
                       ),
@@ -663,9 +793,12 @@ class _MapVectorPainter extends CustomPainter {
     final riverPath = Path()
       ..moveTo(0, size.height * 0.2)
       ..cubicTo(
-        size.width * 0.35, size.height * 0.15,
-        size.width * 0.55, size.height * 0.45,
-        size.width, size.height * 0.35,
+        size.width * 0.35,
+        size.height * 0.15,
+        size.width * 0.55,
+        size.height * 0.45,
+        size.width,
+        size.height * 0.35,
       );
     canvas.drawPath(riverPath, riverPaint);
 
@@ -736,11 +869,30 @@ class _MapVectorPainter extends CustomPainter {
     );
 
     // 5. Landmark Text Labels
-    const textStyle = TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF5A7B75));
-    
-    _drawText(canvas, '🏞️ Central Park', Offset(size.width * 0.58, size.height * 0.62), textStyle);
-    _drawText(canvas, '🚇 Metro Station', Offset(size.width * 0.12, size.height * 0.12), textStyle);
-    _drawText(canvas, '📚 Community Library', Offset(size.width * 0.52, size.height * 0.35), textStyle);
+    const textStyle = TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFF5A7B75),
+    );
+
+    _drawText(
+      canvas,
+      '🏞️ Central Park',
+      Offset(size.width * 0.58, size.height * 0.62),
+      textStyle,
+    );
+    _drawText(
+      canvas,
+      '🚇 Metro Station',
+      Offset(size.width * 0.12, size.height * 0.12),
+      textStyle,
+    );
+    _drawText(
+      canvas,
+      '📚 Community Library',
+      Offset(size.width * 0.52, size.height * 0.35),
+      textStyle,
+    );
   }
 
   void _drawText(Canvas canvas, String text, Offset position, TextStyle style) {
@@ -860,7 +1012,9 @@ class ProfileCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             profile.name,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(fontSize: 16),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -888,17 +1042,40 @@ class ProfileCard extends StatelessWidget {
                       children: [
                         Text(
                           'Active ${((profile.id.hashCode.abs() % 15) + 2)}m ago',
-                          style: const TextStyle(fontSize: 11.5, color: AppColors.success, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: AppColors.success,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        const Text('•', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        const Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                         Text(
                           '${profile.distanceKm.toStringAsFixed(1)} km away',
-                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
-                        const Text('•', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        const Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                         Text(
                           '★ ${profile.rating.toStringAsFixed(1)}',
-                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -919,7 +1096,11 @@ class ProfileCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF332B18) : AppColors.softGold,
                   borderRadius: AppRadii.pill,
-                  border: Border.all(color: isDark ? const Color(0xFF665322) : AppColors.warning.withValues(alpha: 0.5)),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF665322)
+                        : AppColors.warning.withValues(alpha: 0.5),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -931,7 +1112,9 @@ class ProfileCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? const Color(0xFFFFD580) : AppColors.textPrimary,
+                        color: isDark
+                            ? const Color(0xFFFFD580)
+                            : AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -981,9 +1164,19 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
             onAction: () => ref.invalidate(requestsProvider),
           ),
           data: (requests) {
-            final incomingCount = requests.where((item) => item.isIncoming).length;
-            final outgoingCount = requests.where((item) => !item.isIncoming && item.status != RequestStatus.completed).length;
-            final completedCount = requests.where((item) => item.status == RequestStatus.completed).length;
+            final incomingCount = requests
+                .where((item) => item.isIncoming)
+                .length;
+            final outgoingCount = requests
+                .where(
+                  (item) =>
+                      !item.isIncoming &&
+                      item.status != RequestStatus.completed,
+                )
+                .length;
+            final completedCount = requests
+                .where((item) => item.status == RequestStatus.completed)
+                .length;
 
             final tabLabels = [
               'Incoming ($incomingCount)',
@@ -1030,7 +1223,9 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                             duration: const Duration(milliseconds: 180),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.accent : Colors.transparent,
+                              color: isSelected
+                                  ? AppColors.accent
+                                  : Colors.transparent,
                               borderRadius: AppRadii.pill,
                             ),
                             child: Text(
@@ -1038,7 +1233,9 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: isSelected ? AppColors.surface : AppColors.textPrimary,
+                                color: isSelected
+                                    ? AppColors.surface
+                                    : AppColors.textPrimary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
@@ -1053,29 +1250,32 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                 if (visible.isEmpty || ref.watch(debugForceEmptyStatesProvider))
                   switch (selected) {
                     0 => FriendlyEmptyState(
-                        imageAsset: 'assets/illustrations/empty/empty_requests .png',
-                        title: 'No incoming requests yet',
-                        message:
-                            'When neighbours reach out to trade skills with you, they will show up here.',
-                        actionLabel: 'Explore nearby',
-                        onAction: () => context.go('/nearby'),
-                      ),
+                      imageAsset:
+                          'assets/illustrations/empty/empty_requests .png',
+                      title: 'No incoming requests yet',
+                      message:
+                          'When neighbours reach out to trade skills with you, they will show up here.',
+                      actionLabel: 'Explore nearby',
+                      onAction: () => context.go('/nearby'),
+                    ),
                     1 => FriendlyEmptyState(
-                        imageAsset: 'assets/illustrations/empty/empty_requests .png',
-                        title: 'No outgoing requests',
-                        message:
-                            'Browse nearby skills and start a new swap request with a neighbour.',
-                        actionLabel: 'Find people',
-                        onAction: () => context.go('/nearby'),
-                      ),
+                      imageAsset:
+                          'assets/illustrations/empty/empty_requests .png',
+                      title: 'No outgoing requests',
+                      message:
+                          'Browse nearby skills and start a new swap request with a neighbour.',
+                      actionLabel: 'Find people',
+                      onAction: () => context.go('/nearby'),
+                    ),
                     _ => FriendlyEmptyState(
-                        imageAsset: 'assets/illustrations/empty/empty_history.png',
-                        title: 'No completed swaps yet',
-                        message:
-                            'Completed skill exchanges and mutual ratings will be stored here.',
-                        actionLabel: 'Explore nearby',
-                        onAction: () => context.go('/nearby'),
-                      ),
+                      imageAsset:
+                          'assets/illustrations/empty/empty_history.png',
+                      title: 'No completed swaps yet',
+                      message:
+                          'Completed skill exchanges and mutual ratings will be stored here.',
+                      actionLabel: 'Explore nearby',
+                      onAction: () => context.go('/nearby'),
+                    ),
                   }
                 else
                   ...visible.map((request) {
@@ -1095,20 +1295,36 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                       ),
                       onMessage: () => context.push('/chat/${profile.id}'),
                       onAccept: () async {
-                        await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.accepted);
+                        await ref
+                            .read(repositoryProvider)
+                            .updateRequestStatus(
+                              request.id,
+                              RequestStatus.accepted,
+                            );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('🎉 Accepted swap request from ${profile.name}!'),
+                              content: Text(
+                                '🎉 Accepted swap request from ${profile.name}!',
+                              ),
                               action: SnackBarAction(
                                 label: 'UNDO',
                                 textColor: AppColors.softGold,
                                 onPressed: () async {
-                                  await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.pending);
+                                  await ref
+                                      .read(repositoryProvider)
+                                      .updateRequestStatus(
+                                        request.id,
+                                        RequestStatus.pending,
+                                      );
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Reverted request back to Pending.')),
+                                      const SnackBar(
+                                        content: Text(
+                                          'Reverted request back to Pending.',
+                                        ),
+                                      ),
                                     );
                                   }
                                 },
@@ -1119,18 +1335,34 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                         }
                       },
                       onDecline: () async {
-                        await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.declined);
+                        await ref
+                            .read(repositoryProvider)
+                            .updateRequestStatus(
+                              request.id,
+                              RequestStatus.declined,
+                            );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Declined swap request.')),
+                            const SnackBar(
+                              content: Text('Declined swap request.'),
+                            ),
                           );
                         }
                       },
                       onUndoAccept: () async {
-                        await ref.read(repositoryProvider).updateRequestStatus(request.id, RequestStatus.pending);
+                        await ref
+                            .read(repositoryProvider)
+                            .updateRequestStatus(
+                              request.id,
+                              RequestStatus.pending,
+                            );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Reverted request back to Pending.')),
+                            const SnackBar(
+                              content: Text(
+                                'Reverted request back to Pending.',
+                              ),
+                            ),
                           );
                         }
                       },
@@ -1156,7 +1388,8 @@ class MessagesScreen extends ConsumerWidget {
           ? FriendlyEmptyState(
               imageAsset: 'assets/illustrations/empty/empty_messages.png',
               title: 'No messages yet',
-              message: 'Start a conversation after you send or accept a swap request.',
+              message:
+                  'Start a conversation after you send or accept a swap request.',
               actionLabel: 'Explore nearby',
               onAction: () => context.go('/nearby'),
             )
@@ -1260,7 +1493,11 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                       color: AppColors.softGold,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.stars_rounded, color: AppColors.primary, size: 26),
+                    child: const Icon(
+                      Icons.stars_rounded,
+                      color: AppColors.primary,
+                      size: 26,
+                    ),
                   ),
                   const SizedBox(width: AppSpace.sm),
                   Text(
@@ -1270,23 +1507,34 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                 ],
               ),
               const SizedBox(height: AppSpace.xs),
-              const Text('Earned by teaching, spent by learning from neighbours:'),
+              const Text(
+                'Earned by teaching, spent by learning from neighbours:',
+              ),
               const SizedBox(height: AppSpace.md),
               const ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundColor: AppColors.softTeal, child: Icon(Icons.arrow_upward, color: AppColors.success)),
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.softTeal,
+                  child: Icon(Icons.arrow_upward, color: AppColors.success),
+                ),
                 title: Text('Taught Graphic Design (+3 credits)'),
                 subtitle: Text('Swap with Rohan • Yesterday'),
               ),
               const ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundColor: AppColors.softTeal, child: Icon(Icons.arrow_upward, color: AppColors.success)),
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.softTeal,
+                  child: Icon(Icons.arrow_upward, color: AppColors.success),
+                ),
                 title: Text('Taught Branding Basics (+2 credits)'),
                 subtitle: Text('Swap with Neha • 3 days ago'),
               ),
               const ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundColor: AppColors.softCoral, child: Icon(Icons.arrow_downward, color: AppColors.accent)),
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.softCoral,
+                  child: Icon(Icons.arrow_downward, color: AppColors.accent),
+                ),
                 title: Text('Learned Sourdough Baking (-2 credits)'),
                 subtitle: Text('Swap with Maya • 1 week ago'),
               ),
@@ -1299,7 +1547,9 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(48),
-                    shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.input,
+                    ),
                   ),
                   child: const Text('Close'),
                 ),
@@ -1314,7 +1564,8 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final myProfileAsync = ref.watch(myProfileProvider);
-    final profile = myProfileAsync.value ?? ref.read(repositoryProvider).myProfile;
+    final profile =
+        myProfileAsync.value ?? ref.read(repositoryProvider).myProfile;
 
     return PageFrame(
       title: profile.name,
@@ -1345,22 +1596,38 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                                 children: [
                                   Text(
                                     profile.name,
-                                    style: Theme.of(context).textTheme.titleLarge,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
                                   ),
                                   if (profile.isVerified) ...[
                                     const SizedBox(width: 4),
-                                    const Icon(Icons.verified, color: AppColors.primary, size: 18),
+                                    const Icon(
+                                      Icons.verified,
+                                      color: AppColors.primary,
+                                      size: 18,
+                                    ),
                                   ],
                                 ],
                               ),
-                              Text('${profile.rating.toStringAsFixed(1)} ★  •  Response rate ${profile.responseRate}%'),
+                              Text(
+                                '${profile.rating.toStringAsFixed(1)} ★  •  Response rate ${profile.responseRate}%',
+                              ),
                               const SizedBox(height: 2),
-                              const Text('12 swaps completed', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                              const Text(
+                                '12 swaps completed',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         Icon(
-                          _isCardExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                          _isCardExpanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
                           color: AppColors.primary,
                         ),
                       ],
@@ -1369,17 +1636,27 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                       const Divider(height: 24),
                       const Text(
                         'Bio & Intro',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        profile.bio.isNotEmpty ? profile.bio : 'No bio added yet.',
+                        profile.bio.isNotEmpty
+                            ? profile.bio
+                            : 'No bio added yet.',
                         style: const TextStyle(fontSize: 14),
                       ),
                       const SizedBox(height: AppSpace.md),
                       const Text(
                         'Skills Offered / Teach',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Wrap(
@@ -1392,7 +1669,11 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                       const SizedBox(height: AppSpace.md),
                       const Text(
                         'Skills Wanted / Learn',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.accent),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.accent,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Wrap(
@@ -1412,7 +1693,9 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                               label: const Text('Edit Profile Details'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primary,
-                                side: const BorderSide(color: AppColors.primary),
+                                side: const BorderSide(
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ),
                           ),
@@ -1423,7 +1706,11 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                       const Center(
                         child: Text(
                           'Tap card to expand details ▾',
-                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
@@ -1486,7 +1773,8 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
             icon: Icons.tune_outlined,
             title: 'Availability',
             subtitle:
-                ref.watch(preferencesProvider).value?.isAvailableEvenings == true
+                ref.watch(preferencesProvider).value?.isAvailableEvenings ==
+                    true
                 ? 'Evenings'
                 : 'Flexible',
             onTap: () {},
@@ -1508,7 +1796,10 @@ class _NeighbourhoodBadges extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Neighbourhood Badges', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          const Text(
+            'Neighbourhood Badges',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
           const SizedBox(height: AppSpace.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1582,43 +1873,43 @@ class PageFrame extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-            OfflineBanner(connection: connection, pendingCount: pending),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpace.lg,
-                AppSpace.lg,
-                AppSpace.lg,
-                0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  if (subtitleWidget != null)
-                    subtitleWidget!
-                  else if (subtitle != null)
+              OfflineBanner(connection: connection, pendingCount: pending),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpace.lg,
+                  AppSpace.lg,
+                  AppSpace.lg,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      title,
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
-                ],
+                    if (subtitleWidget != null)
+                      subtitleWidget!
+                    else if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpace.lg),
-                child: child,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpace.lg),
+                  child: child,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class ProfileAvatar extends StatelessWidget {
@@ -1704,13 +1995,21 @@ class _SettingsTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
                       if (subtitle != null)
                         Text(
                           subtitle!,
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? DarkColors.stone : AppColors.textSecondary,
+                            color: isDark
+                                ? DarkColors.stone
+                                : AppColors.textSecondary,
                           ),
                         ),
                     ],
@@ -1821,7 +2120,10 @@ class _DeveloperDebugSection extends ConsumerWidget {
         expand: false,
         builder: (_, scrollController) => SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg, vertical: AppSpace.md),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.lg,
+              vertical: AppSpace.md,
+            ),
             child: Column(
               children: [
                 Center(
@@ -1837,12 +2139,18 @@ class _DeveloperDebugSection extends ConsumerWidget {
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.collections_outlined, color: AppColors.primary, size: 26),
+                    const Icon(
+                      Icons.collections_outlined,
+                      color: AppColors.primary,
+                      size: 26,
+                    ),
                     const SizedBox(width: AppSpace.sm),
                     Expanded(
                       child: Text(
                         'Empty State Gallery (13 Assets)',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleLarge?.copyWith(fontSize: 18),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -1851,14 +2159,18 @@ class _DeveloperDebugSection extends ConsumerWidget {
                 const SizedBox(height: AppSpace.xs),
                 const Text(
                   'Matched directly with emptystates.csv specification:',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(height: AppSpace.md),
                 Expanded(
                   child: ListView.separated(
                     controller: scrollController,
                     itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpace.md),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpace.md),
                     itemBuilder: (_, index) {
                       final (file, title, desc) = items[index];
                       return Container(
@@ -1875,20 +2187,37 @@ class _DeveloperDebugSection extends ConsumerWidget {
                               'assets/illustrations/empty/$file',
                               height: 120,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 40, color: AppColors.accent),
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.broken_image,
+                                size: 40,
+                                color: AppColors.accent,
+                              ),
                             ),
                             const SizedBox(height: AppSpace.xs),
-                            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               desc,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               'assets/illustrations/empty/$file',
-                              style: const TextStyle(fontSize: 10, fontFamily: 'IBM Plex Mono', color: AppColors.primary),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontFamily: 'IBM Plex Mono',
+                                color: AppColors.primary,
+                              ),
                             ),
                           ],
                         ),
@@ -1919,14 +2248,27 @@ class _DeveloperDebugSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpace.md, AppSpace.md, AppSpace.md, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpace.md,
+              AppSpace.md,
+              AppSpace.md,
+              0,
+            ),
             child: Row(
               children: const [
-                Icon(Icons.bug_report_outlined, color: AppColors.warning, size: 20),
+                Icon(
+                  Icons.bug_report_outlined,
+                  color: AppColors.warning,
+                  size: 20,
+                ),
                 SizedBox(width: 8),
                 Text(
                   'Developer / Debug Mode',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),
@@ -1934,7 +2276,10 @@ class _DeveloperDebugSection extends ConsumerWidget {
           SwitchListTile(
             value: forceEmpty,
             activeThumbColor: AppColors.primary,
-            title: const Text('Force Empty States (Preview)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            title: const Text(
+              'Force Empty States (Preview)',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
             subtitle: const Text(
               'Simulates cold start empty states across Nearby, Requests, and Messages',
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
@@ -1945,7 +2290,12 @@ class _DeveloperDebugSection extends ConsumerWidget {
             },
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpace.md, 0, AppSpace.md, AppSpace.md),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpace.md,
+              0,
+              AppSpace.md,
+              AppSpace.md,
+            ),
             child: Column(
               children: [
                 SizedBox(
@@ -1976,12 +2326,18 @@ class _DeveloperDebugSection extends ConsumerWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('🔔 Push alert triggered: "Rohan Verma accepted your swap!"'),
+                            content: Text(
+                              '🔔 Push alert triggered: "Rohan Verma accepted your swap!"',
+                            ),
                           ),
                         );
                       }
                     },
-                    icon: const Icon(Icons.notifications_active, size: 16, color: Colors.white),
+                    icon: const Icon(
+                      Icons.notifications_active,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                     label: const Text('Test Push Notification Alert'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -1998,7 +2354,9 @@ class _DeveloperDebugSection extends ConsumerWidget {
                       HapticFeedback.lightImpact();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('⚡ Supabase Realtime WebSocket stream channel connected! Listening on public:swaps & public:messages.'),
+                          content: Text(
+                            '⚡ Supabase Realtime WebSocket stream channel connected! Listening on public:swaps & public:messages.',
+                          ),
                         ),
                       );
                     },
@@ -2082,7 +2440,10 @@ class _ProfileSkills extends StatelessWidget {
           ],
         ),
         SizedBox(height: AppSpace.sm),
-        Text('What you are learning', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          'What you are learning',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         SizedBox(height: AppSpace.xs),
         Wrap(
           spacing: AppSpace.xs,
@@ -2101,7 +2462,8 @@ class _RecentKindWordsCarousel extends StatefulWidget {
   const _RecentKindWordsCarousel();
 
   @override
-  State<_RecentKindWordsCarousel> createState() => _RecentKindWordsCarouselState();
+  State<_RecentKindWordsCarousel> createState() =>
+      _RecentKindWordsCarouselState();
 }
 
 class _RecentKindWordsCarouselState extends State<_RecentKindWordsCarousel> {
@@ -2132,7 +2494,12 @@ class _RecentKindWordsCarouselState extends State<_RecentKindWordsCarousel> {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(AppSpace.md, AppSpace.md, AppSpace.md, 12),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.md,
+        AppSpace.md,
+        AppSpace.md,
+        12,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -2198,7 +2565,9 @@ class _RecentKindWordsCarouselState extends State<_RecentKindWordsCarousel> {
                 width: _currentPage == index ? 16 : 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: _currentPage == index ? AppColors.accent : AppColors.border,
+                  color: _currentPage == index
+                      ? AppColors.accent
+                      : AppColors.border,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),

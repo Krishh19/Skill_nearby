@@ -22,7 +22,8 @@ class SwapProposalSheet extends StatefulWidget {
     required String offeredSkill,
     required String wantedSkill,
     required String note,
-  }) onSendProposal;
+  })
+  onSendProposal;
 
   static void show(
     BuildContext context, {
@@ -35,7 +36,8 @@ class SwapProposalSheet extends StatefulWidget {
       required String offeredSkill,
       required String wantedSkill,
       required String note,
-    }) onSendProposal,
+    })
+    onSendProposal,
   }) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -65,7 +67,9 @@ class SwapProposalSheet extends StatefulWidget {
 class _SwapProposalSheetState extends State<SwapProposalSheet> {
   late DateTime _selectedDate;
   TimeOfDay _selectedTime = const TimeOfDay(hour: 16, minute: 0);
-  final TextEditingController _locationController = TextEditingController(text: 'Community Library, Table 4');
+  final TextEditingController _locationController = TextEditingController(
+    text: 'Community Library, Table 4',
+  );
   final TextEditingController _noteController = TextEditingController();
 
   late String _selectedOffered;
@@ -75,8 +79,12 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
   void initState() {
     super.initState();
     _selectedDate = DateTime.now().add(const Duration(days: 2));
-    _selectedOffered = widget.offeredSkills.isNotEmpty ? widget.offeredSkills.first : 'Skill Exchange';
-    _selectedWanted = widget.wantedSkills.isNotEmpty ? widget.wantedSkills.first : 'Learning';
+    _selectedOffered = widget.offeredSkills.isNotEmpty
+        ? widget.offeredSkills.first
+        : 'Skill Exchange';
+    _selectedWanted = widget.wantedSkills.isNotEmpty
+        ? widget.wantedSkills.first
+        : 'Learning';
   }
 
   @override
@@ -144,7 +152,11 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
                     color: AppColors.softTeal,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.handshake_outlined, color: AppColors.primary, size: 26),
+                  child: const Icon(
+                    Icons.handshake_outlined,
+                    color: AppColors.primary,
+                    size: 26,
+                  ),
                 ),
                 const SizedBox(width: AppSpace.sm),
                 Expanded(
@@ -153,12 +165,16 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
                     children: [
                       Text(
                         'Propose Swap Session',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontSize: 20,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(color: AppColors.primary, fontSize: 20),
+                      ),
+                      Text(
+                        'Propose a time & place to meet ${widget.profileName}',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
                         ),
                       ),
-                      Text('Propose a time & place to meet ${widget.profileName}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                     ],
                   ),
                 ),
@@ -179,11 +195,18 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today, size: 18, color: AppColors.primary),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -203,11 +226,18 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.access_time, size: 18, color: AppColors.primary),
+                          const Icon(
+                            Icons.access_time,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             _selectedTime.format(context),
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -220,7 +250,10 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.place_outlined, color: AppColors.primary),
+                prefixIcon: Icon(
+                  Icons.place_outlined,
+                  color: AppColors.primary,
+                ),
                 labelText: 'Meeting Location',
                 hintText: 'e.g. Local Cafe, Park, or Zoom link',
               ),
@@ -253,8 +286,13 @@ class _SwapProposalSheetState extends State<SwapProposalSheet> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
-                shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
-                textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.input,
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -289,15 +327,15 @@ class SwapProposalCard extends StatelessWidget {
         color: isAccepted
             ? AppColors.softTeal
             : isDeclined
-                ? AppColors.softCoral
-                : AppColors.surface,
+            ? AppColors.softCoral
+            : AppColors.surface,
         borderRadius: AppRadii.card,
         border: Border.all(
           color: isAccepted
               ? AppColors.primary
               : isDeclined
-                  ? AppColors.accent
-                  : AppColors.border,
+              ? AppColors.accent
+              : AppColors.border,
           width: 1.5,
         ),
         boxShadow: AppShadows.card,
@@ -310,9 +348,16 @@ class SwapProposalCard extends StatelessWidget {
             children: [
               Row(
                 children: const [
-                  Icon(Icons.handshake_rounded, color: AppColors.primary, size: 20),
+                  Icon(
+                    Icons.handshake_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                   SizedBox(width: 6),
-                  Text('Swap Session Proposal', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(
+                    'Swap Session Proposal',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
                 ],
               ),
               Container(
@@ -321,19 +366,26 @@ class SwapProposalCard extends StatelessWidget {
                   color: isAccepted
                       ? AppColors.primary
                       : isDeclined
-                          ? AppColors.accent
-                          : AppColors.warning,
+                      ? AppColors.accent
+                      : AppColors.warning,
                   borderRadius: AppRadii.pill,
                 ),
                 child: Text(
                   status.toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpace.xs),
-          Text(message.body, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+          Text(
+            message.body,
+            style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+          ),
           const SizedBox(height: AppSpace.sm),
           Row(
             children: [
@@ -342,7 +394,11 @@ class SwapProposalCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   message.proposalLocation ?? 'Location agreed in chat',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ],
@@ -355,7 +411,11 @@ class SwapProposalCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   '${message.proposalDate!.day}/${message.proposalDate!.month}/${message.proposalDate!.year} at ${message.proposalDate!.hour}:${message.proposalDate!.minute.toString().padLeft(2, '0')}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),

@@ -154,20 +154,30 @@ class _RequestSwapScreenState extends State<RequestSwapScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select preferred time', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Select preferred time',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpace.sm),
-              ...times.map((t) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      preferredTime == t ? Icons.radio_button_checked : Icons.radio_button_off,
-                      color: AppColors.primary,
-                    ),
-                    title: Text(t, style: const TextStyle(fontWeight: FontWeight.w500)),
-                    onTap: () {
-                      setState(() => preferredTime = t);
-                      Navigator.pop(ctx);
-                    },
-                  )),
+              ...times.map(
+                (t) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    preferredTime == t
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(
+                    t,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    setState(() => preferredTime = t);
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -233,7 +243,10 @@ class _RequestSwapScreenState extends State<RequestSwapScreen> {
               onTap: () => _selectPreferredTime(context),
               borderRadius: AppRadii.input,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: AppRadii.input,
@@ -241,7 +254,11 @@ class _RequestSwapScreenState extends State<RequestSwapScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.schedule, color: AppColors.primary, size: 20),
+                    const Icon(
+                      Icons.schedule,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -249,17 +266,28 @@ class _RequestSwapScreenState extends State<RequestSwapScreen> {
                         children: [
                           const Text(
                             'Preferred time',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             preferredTime,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+                    const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: AppColors.textSecondary,
+                    ),
                   ],
                 ),
               ),
@@ -282,7 +310,8 @@ class RequestReviewScreen extends ConsumerStatefulWidget {
   final String profileId;
 
   @override
-  ConsumerState<RequestReviewScreen> createState() => _RequestReviewScreenState();
+  ConsumerState<RequestReviewScreen> createState() =>
+      _RequestReviewScreenState();
 }
 
 class _RequestReviewScreenState extends ConsumerState<RequestReviewScreen> {
@@ -352,8 +381,12 @@ class _RequestReviewScreenState extends ConsumerState<RequestReviewScreen> {
                     child: Text(
                       'I agree to the community guidelines',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: _agreedToTerms ? AppColors.textPrimary : AppColors.textSecondary,
-                        fontWeight: _agreedToTerms ? FontWeight.bold : FontWeight.normal,
+                        color: _agreedToTerms
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                        fontWeight: _agreedToTerms
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -369,7 +402,9 @@ class _RequestReviewScreenState extends ConsumerState<RequestReviewScreen> {
                 HapticFeedback.heavyImpact();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('⚠️ Please agree to the community guidelines before sending.'),
+                    content: Text(
+                      '⚠️ Please agree to the community guidelines before sending.',
+                    ),
                     backgroundColor: AppColors.accent,
                   ),
                 );
@@ -467,7 +502,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.shield_outlined, color: AppColors.primary, size: 26),
+                const Icon(
+                  Icons.shield_outlined,
+                  color: AppColors.primary,
+                  size: 26,
+                ),
                 const SizedBox(width: AppSpace.sm),
                 Text(
                   'Safety & Protection',
@@ -480,9 +519,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             const SizedBox(height: AppSpace.sm),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.lightbulb_outline, color: AppColors.primary),
+              leading: const Icon(
+                Icons.lightbulb_outline,
+                color: AppColors.primary,
+              ),
               title: const Text('Safety Guidelines'),
-              subtitle: const Text('Always meet in public places for first swaps'),
+              subtitle: const Text(
+                'Always meet in public places for first swaps',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/safety');
@@ -492,19 +536,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.flag_outlined, color: AppColors.accent),
               title: const Text('Report Concern'),
-              subtitle: const Text('Notify moderators about inappropriate behavior'),
+              subtitle: const Text(
+                'Notify moderators about inappropriate behavior',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Report submitted to community team.')),
+                  const SnackBar(
+                    content: Text('Report submitted to community team.'),
+                  ),
                 );
               },
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.block_outlined, color: AppColors.accent),
+              leading: const Icon(
+                Icons.block_outlined,
+                color: AppColors.accent,
+              ),
               title: const Text('Block User'),
-              subtitle: const Text('Prevent further messages and request attempts'),
+              subtitle: const Text(
+                'Prevent further messages and request attempts',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -565,7 +618,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             .updateProposalStatus(message.id, 'accepted');
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('🎉 Swap Proposal Accepted! Session confirmed.')),
+                            const SnackBar(
+                              content: Text(
+                                '🎉 Swap Proposal Accepted! Session confirmed.',
+                              ),
+                            ),
                           );
                         }
                       },
@@ -583,7 +640,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: AppSpace.xs),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       constraints: const BoxConstraints(maxWidth: 290),
                       decoration: BoxDecoration(
                         color: message.sentByMe
@@ -592,8 +652,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         borderRadius: BorderRadius.only(
                           topLeft: const Radius.circular(16),
                           topRight: const Radius.circular(16),
-                          bottomLeft: message.sentByMe ? const Radius.circular(16) : const Radius.circular(4),
-                          bottomRight: message.sentByMe ? const Radius.circular(4) : const Radius.circular(16),
+                          bottomLeft: message.sentByMe
+                              ? const Radius.circular(16)
+                              : const Radius.circular(4),
+                          bottomRight: message.sentByMe
+                              ? const Radius.circular(4)
+                              : const Radius.circular(16),
                         ),
                         boxShadow: message.sentByMe ? null : AppShadows.card,
                       ),
@@ -649,45 +713,57 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               padding: const EdgeInsets.only(top: AppSpace.xs),
               child: ChatQuickActions(
                 onProposeMeeting: () {
-                  final profile = ref.read(repositoryProvider).profile(widget.profileId);
+                  final profile = ref
+                      .read(repositoryProvider)
+                      .profile(widget.profileId);
                   SwapProposalSheet.show(
                     context,
                     profileName: profile.name,
                     offeredSkills: profile.offers,
                     wantedSkills: profile.wants,
-                    onSendProposal: ({
-                      required date,
-                      required location,
-                      required offeredSkill,
-                      required wantedSkill,
-                      required note,
-                    }) async {
-                      final body = note.isNotEmpty
-                          ? note
-                          : "Hey ${profile.name}! Proposing a swap session ($offeredSkill ↔ $wantedSkill) at $location.";
-                      await ref.read(repositoryProvider).sendMessage(
-                        profileId: widget.profileId,
-                        body: body,
-                        proposalDate: date,
-                        proposalLocation: location,
-                        offeredSkill: offeredSkill,
-                        wantedSkill: wantedSkill,
-                      );
-                    },
+                    onSendProposal:
+                        ({
+                          required date,
+                          required location,
+                          required offeredSkill,
+                          required wantedSkill,
+                          required note,
+                        }) async {
+                          final body = note.isNotEmpty
+                              ? note
+                              : "Hey ${profile.name}! Proposing a swap session ($offeredSkill ↔ $wantedSkill) at $location.";
+                          await ref
+                              .read(repositoryProvider)
+                              .sendMessage(
+                                profileId: widget.profileId,
+                                body: body,
+                                proposalDate: date,
+                                proposalLocation: location,
+                                offeredSkill: offeredSkill,
+                                wantedSkill: wantedSkill,
+                              );
+                        },
                   );
                 },
                 onShareLocation: () => setState(
-                  () => input.text = "Let's meet at Central Park entrance nearby!",
+                  () => input.text =
+                      "Let's meet at Central Park entrance nearby!",
                 ),
                 onConfirmSwap: () => setState(
-                  () => input.text = 'All set! Excited for our skill swap session.',
+                  () => input.text =
+                      'All set! Excited for our skill swap session.',
                 ),
               ),
             ),
             const SizedBox(height: AppSpace.xs),
 
             Container(
-              padding: const EdgeInsets.fromLTRB(AppSpace.sm, 4, AppSpace.sm, AppSpace.sm),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpace.sm,
+                4,
+                AppSpace.sm,
+                AppSpace.sm,
+              ),
               color: AppColors.surface,
               child: Row(
                 children: [
@@ -875,7 +951,9 @@ class _StandingOffersScreenState extends State<StandingOffersScreen> {
   void _showAddOfferModal() {
     HapticFeedback.lightImpact();
     final titleController = TextEditingController();
-    final availabilityController = TextEditingController(text: 'Available on weekends & evenings');
+    final availabilityController = TextEditingController(
+      text: 'Available on weekends & evenings',
+    );
 
     showModalBottomSheet(
       context: context,
@@ -908,13 +986,22 @@ class _StandingOffersScreenState extends State<StandingOffersScreen> {
               ),
               Row(
                 children: const [
-                  Icon(Icons.palette_outlined, color: AppColors.primary, size: 24),
+                  Icon(
+                    Icons.palette_outlined,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                   SizedBox(width: 8),
-                  Text('Create New Standing Offer', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Create New Standing Offer',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpace.sm),
-              const Text('Standing offers let neighbours know you are open to helping anytime without a prior request.'),
+              const Text(
+                'Standing offers let neighbours know you are open to helping anytime without a prior request.',
+              ),
               const SizedBox(height: AppSpace.md),
               TextField(
                 controller: titleController,
@@ -940,7 +1027,9 @@ class _StandingOffersScreenState extends State<StandingOffersScreen> {
                   if (title.isEmpty) {
                     HapticFeedback.heavyImpact();
                     ScaffoldMessenger.of(ctx).showSnackBar(
-                      const SnackBar(content: Text('⚠️ Please enter an offer title.')),
+                      const SnackBar(
+                        content: Text('⚠️ Please enter an offer title.'),
+                      ),
                     );
                     return;
                   }
@@ -949,7 +1038,9 @@ class _StandingOffersScreenState extends State<StandingOffersScreen> {
                     _offers.add(
                       _StandingOfferItem(
                         title: title,
-                        availability: availability.isNotEmpty ? availability : 'Flexible availability',
+                        availability: availability.isNotEmpty
+                            ? availability
+                            : 'Flexible availability',
                         isActive: true,
                       ),
                     );
@@ -973,7 +1064,10 @@ class _StandingOffersScreenState extends State<StandingOffersScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Your Active Offers (${_offers.length})', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Your Active Offers (${_offers.length})',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpace.xs),
         if (_offers.isEmpty)
           FriendlyEmptyState(
@@ -991,7 +1085,10 @@ class _StandingOffersScreenState extends State<StandingOffersScreen> {
               child: AppCard(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.palette_outlined, color: AppColors.primary),
+                  leading: const Icon(
+                    Icons.palette_outlined,
+                    color: AppColors.primary,
+                  ),
                   title: Text(offer.title),
                   subtitle: Text(offer.availability),
                   trailing: Switch(

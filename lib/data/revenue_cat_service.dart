@@ -19,7 +19,10 @@ class RevenueCatConfig {
 }
 
 class RevenueCatService {
-  RevenueCatService(this._repository, [this._config = RevenueCatConfig.fromEnvironment]);
+  RevenueCatService(
+    this._repository, [
+    this._config = RevenueCatConfig.fromEnvironment,
+  ]);
 
   final SkillRepository _repository;
   final RevenueCatConfig _config;
@@ -65,7 +68,8 @@ class RevenueCatService {
     try {
       if (_initialized) {
         final offerings = await Purchases.getOfferings();
-        if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
+        if (offerings.current != null &&
+            offerings.current!.availablePackages.isNotEmpty) {
           final package = offerings.current!.availablePackages.first;
           final customerInfo = await Purchases.purchasePackage(package);
           final entitlement = customerInfo.entitlements.all[entitlementPlus];

@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class NotificationService {
   NotificationService();
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
 
   static const String channelIdSwaps = 'skillnearby_swaps';
@@ -14,10 +15,14 @@ class NotificationService {
   static const String channelIdMessages = 'skillnearby_messages';
   static const String channelNameMessages = 'Chat Messages & Proposals';
 
-  Future<void> initialize({void Function(String? payload)? onSelectNotification}) async {
+  Future<void> initialize({
+    void Function(String? payload)? onSelectNotification,
+  }) async {
     if (_isInitialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -49,7 +54,8 @@ class NotificationService {
     const androidDetails = AndroidNotificationDetails(
       channelIdSwaps,
       channelNameSwaps,
-      channelDescription: 'Alerts when a neighbour requests a skill swap with you',
+      channelDescription:
+          'Alerts when a neighbour requests a skill swap with you',
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
@@ -61,7 +67,10 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
 
     await _plugin.show(
       requestId.hashCode,
@@ -80,7 +89,8 @@ class NotificationService {
     const androidDetails = AndroidNotificationDetails(
       channelIdMessages,
       channelNameMessages,
-      channelDescription: 'Alerts when a neighbour sends a message or swap proposal',
+      channelDescription:
+          'Alerts when a neighbour sends a message or swap proposal',
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
@@ -92,7 +102,10 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
 
     await _plugin.show(
       profileId.hashCode,
@@ -111,7 +124,8 @@ class NotificationService {
     const androidDetails = AndroidNotificationDetails(
       channelIdSwaps,
       channelNameSwaps,
-      channelDescription: 'Alerts when a neighbour accepts your skill swap request',
+      channelDescription:
+          'Alerts when a neighbour accepts your skill swap request',
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
@@ -123,7 +137,10 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
 
     await _plugin.show(
       requestId.hashCode.abs(),

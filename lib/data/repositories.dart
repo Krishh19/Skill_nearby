@@ -180,7 +180,10 @@ class SkillRepository {
     );
   }
 
-  Future<void> updateRequestStatus(String requestId, RequestStatus status) async {
+  Future<void> updateRequestStatus(
+    String requestId,
+    RequestStatus status,
+  ) async {
     SwapRequest? targetRequest;
     for (final r in _requests.value) {
       if (r.id == requestId) {
@@ -193,10 +196,7 @@ class SkillRepository {
       _requests.value
           .map(
             (request) => request.id == requestId
-                ? request.copyWith(
-                    status: status,
-                    isPendingSync: true,
-                  )
+                ? request.copyWith(status: status, isPendingSync: true)
                 : request,
           )
           .toList(),
@@ -230,7 +230,9 @@ class SkillRepository {
     _messages.add(
       _messages.value
           .map(
-            (msg) => msg.id == messageId ? msg.copyWith(proposalStatus: status) : msg,
+            (msg) => msg.id == messageId
+                ? msg.copyWith(proposalStatus: status)
+                : msg,
           )
           .toList(),
     );
@@ -262,11 +264,7 @@ class SkillRepository {
     await _enqueue(
       OperationKind.submitRating,
       requestId,
-      payload: {
-        'rating': rating,
-        'comment': comment,
-        'tags': tags,
-      },
+      payload: {'rating': rating, 'comment': comment, 'tags': tags},
     );
   }
 
@@ -280,7 +278,11 @@ class SkillRepository {
     String? avatarUrl,
   }) async {
     final nameParts = name.trim().split(' ');
-    final initials = nameParts.map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+    final initials = nameParts
+        .map((e) => e.isNotEmpty ? e[0] : '')
+        .take(2)
+        .join()
+        .toUpperCase();
     final updated = _myProfile.value.copyWith(
       name: name.trim().isNotEmpty ? name.trim() : _myProfile.value.name,
       initials: initials.isNotEmpty ? initials : _myProfile.value.initials,
@@ -415,7 +417,8 @@ const _seedProfiles = [
     bio: 'Passionate musician and teacher. Love helping people learn!',
     isVerified: true,
     hasVideo: true,
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+    avatarUrl:
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'neha',
@@ -427,7 +430,8 @@ const _seedProfiles = [
     offers: ['Yoga', 'Meditation', 'Wellness'],
     wants: ['Cooking', 'Gardening'],
     bio: 'Yoga teacher who loves a calm neighbourhood morning.',
-    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80',
+    avatarUrl:
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'arjun',
@@ -439,7 +443,8 @@ const _seedProfiles = [
     offers: ['Video Editing', 'Adobe Premiere'],
     wants: ['Guitar Lessons'],
     bio: 'I turn local stories into thoughtful short films.',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
+    avatarUrl:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'maya',
@@ -452,7 +457,8 @@ const _seedProfiles = [
     wants: ['Watercolour', 'House Plants'],
     bio: 'Home baker with a spare starter and a soft spot for shared meals.',
     isVerified: true,
-    avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&q=80',
+    avatarUrl:
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'kabir',
@@ -464,7 +470,8 @@ const _seedProfiles = [
     offers: ['Cycle Repair', 'Furniture Fixes', 'Tool Advice'],
     wants: ['Spoken Spanish', 'Bread Baking'],
     bio: 'Weekend fixer. Happy to help a good thing last a little longer.',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80',
+    avatarUrl:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80',
   ),
   SkillProfile(
     id: 'sana',
@@ -478,7 +485,8 @@ const _seedProfiles = [
     bio:
         'Illustrator, stationery enthusiast, and patient beginner-friendly teacher.',
     hasVideo: true,
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80',
+    avatarUrl:
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80',
   ),
 ];
 

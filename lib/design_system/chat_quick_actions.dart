@@ -21,7 +21,10 @@ class ChatQuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: AppSpace.sm),
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: AppSpace.sm,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(
@@ -86,7 +89,11 @@ class _QuickActionChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 16, color: filled ? AppColors.surface : AppColors.primary),
+              Icon(
+                icon,
+                size: 16,
+                color: filled ? AppColors.surface : AppColors.primary,
+              ),
               const SizedBox(width: 6),
               Text(
                 label,
